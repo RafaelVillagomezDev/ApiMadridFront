@@ -1,1 +1,14 @@
 @import "tailwindcss";
+@theme {
+  /* --- Blanco Frío (Ghost) --- */
+  --color-ghost: #F8F9FF;
+  --color-slate-25: #F8F9FF; /* Extensión de la paleta slate */
+
+  /* --- Alice Blue (Fondos de sección) --- */
+  --color-alice: #F0F4F8;
+  --color-section: #F0F4F8; /* Nombre funcional */
+
+  /* --- Cultured (Tarjetas/Cards) --- */
+  --color-cultured: #F2F4F6;
+  --color-card: #F2F4F6;    /* Nombre funcional */
+}
