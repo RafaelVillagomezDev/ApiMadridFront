@@ -11,4 +11,9 @@
   /* --- Cultured (Tarjetas/Cards) --- */
   --color-cultured: #F2F4F6;
   --color-card: #F2F4F6;    /* Nombre funcional */
+  /*---Banner */
+
+  --color-emerald-vibe: #10B981;   /* Verde Esmeralda (Energía) */
+  --color-night-blue: #0F172A;     /* Azul Noche (Elegancia) */
+  --color-mint-bright: #34D399;    /* Menta (Brillo para el texto/bordes) */
 }

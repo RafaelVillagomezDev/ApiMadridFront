@@ -4,16 +4,23 @@ import { RouterLink } from 'vue-router';
 
 
 interface RouterNavbar {
-    routerCustom: RouterCustomLink[]
+    routerCustom: RouterCustomLink[],
+    customClassRouterLink?: string;
 }
 
-defineProps<RouterNavbar>();
+withDefaults(defineProps<RouterNavbar>(), {
+    customClassRouterLink: "text-slate-900"
+});
 
 </script>
 
 <template>
     <nav class="flex flex-row gap-1">
-        <RouterLink class="text-slate-900" v-for="item in routerCustom" :key="item.linkCustom" :to="item.linkCustom">
+        <RouterLink :class="customClassRouterLink" v-for="item in routerCustom" :key="item.linkCustom"
+            :to="item.linkCustom">
+            <slot>
+                <component :is="item.linkIcon" v-if="item.linkIcon" class="w-5 h-5" />
+            </slot>
             {{ item.linkTitle }}
         </RouterLink>
     </nav>

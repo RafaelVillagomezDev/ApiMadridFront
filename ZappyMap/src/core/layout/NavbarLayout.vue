@@ -2,13 +2,15 @@
 import logo from '@core/assets/icons/logo.svg';
 import Nav from '../components/base/Nav.vue';
 import { ref } from 'vue'
-import { Menu } from 'lucide-vue-next'
+import { Menu ,XLineTop } from 'lucide-vue-next'
+import MenuBurguer from '../components/modal/MenuBurguer.vue';
 // Creamos el objeto tipo ref
 const routerCustom = ref([{
     linkCustom: '/home',
     linkTitle: 'Inicio'
 },])
 
+const isModalVisible = ref(false)
 
 
 </script>
@@ -22,8 +24,16 @@ const routerCustom = ref([{
         </div>
 
         <div class="flex items-center">
-            <Nav :routerCustom="routerCustom"/>
-            <Menu/>
+            <Nav class="hidden md:block "  :routerCustom="routerCustom"/>
+
+            <button v-if="!isModalVisible" type="button" aria-label="Abrir menú" @click="isModalVisible = true">
+                 <Menu class="block sm:hidden" />
+            </button>
+            <button v-if="isModalVisible" type="button" aria-label="Abrir menú" @click="isModalVisible = false">
+                 <XLineTop class="block sm:hidden" />
+            </button>
+            
+            <MenuBurguer  v-if="isModalVisible!=null" v-model="isModalVisible" />
         </div>
 
     </section>
