@@ -1,48 +1,77 @@
 import { useFetch } from "@/core/composables/useFetch";
-import { API_ENDPOINTS } from "@/core/services/api.service";
-import type { FetchMethod, Response } from "@/types/response-types";
+import { RestaurantService } from "@/core/services/api-restaurant.service";
+import { AuthService } from "@/core/services/api.service";
+import type { FetchOptions } from "@/types/response-types";
 import { defineStore } from "pinia";
 import { computed, readonly, ref } from 'vue';
+import { useAuthStore } from "./auth";
 
 export const useRestaurantStore = defineStore('restaurant', () => {
 
+  
+  const data = ref<any>(null);
+  const loading = ref<boolean>(false);
+  const error = ref<any>(null);
+  const restaurantData = ref<any>(null);
+  const restaurantError = ref<any>(null);
+  const restaurantLoading = ref<boolean>(false);
 
-  const options = { method: "POST" as const };
-  const currentEndpoint = ref<string>("");
-  const currentMethod = ref<FetchMethod>("GET");
-  const { data, error, loading, execute } = useFetch(currentEndpoint, options); //Fetch personalizado para manejar errores y estados de carga
-  const dataMemory = computed(() => data.value ?? []);
-
+  const restaurants = computed(() => (restaurantData.value as any)?.data || []);
 
   /**
-   * Función para obtener el token de un endpoint específico. Actualiza el endpoint actual y ejecuta la solicitud.
-   * @param endpointKey 
-   * @returns 
+   * Acción: Obtener Restaurantes
+   * Agregamos los parámetros necesarios para que la función sea dinámica.
    */
-
-  const getToken = async (endpointKey: keyof typeof API_ENDPOINTS, method: FetchMethod): Promise<void|null> => {
+ const getRestaurant = async (): Promise<void | null> => {
     try {
+      restaurantLoading.value = true;
+      restaurantError.value = null;
 
-      if (!data) {
-        throw new Error("No se pudo obtener el token: data es null");
-      }
-      if (loading.value) return;
+      const token = await useAuthStore().getToken();
       
-      currentEndpoint.value = API_ENDPOINTS[endpointKey] ?? "";
-      currentMethod.value = method;
-      await execute();
+      if (!token) {
+        restaurantError.value = new Error("No token available");
+        return null;
+      }
+
+      const {url,options} = RestaurantService.getRestaurant(token);
+
+      const { 
+        data: fetchedData, 
+        error: fetchedError, 
+        execute: executeRestaurant
+      } = useFetch(url,options);
+
+      await executeRestaurant();
+
+      if (fetchedError.value) {
+        console.error("Error obteniendo el restaurante:", fetchedError.value);
+        restaurantError.value = fetchedError.value;
+        return null;
+      }
+
+      if (fetchedData.value) {
+        restaurantData.value = fetchedData.value; // Actualizamos el estado con la respuesta de la API
+        data.value = fetchedData.value;
+      } else {
+        console.warn("No se recibió data al obtener el restaurante.");
+        return null;
+      }
 
     } catch (error) {
-      console.error(`Error obteniendo el token para ${endpointKey}:`, error);
+      console.error("Error obteniendo el restaurante:", error);
+      restaurantError.value = error;
       return null;
+    } finally {
+      restaurantLoading.value = false;
     }
   };
 
-  return {
-    data: dataMemory,
-    error: readonly(error),
-    loading: readonly(loading),
-    getToken,
-  }
 
+  return {
+    restaurants,
+    error: readonly(restaurantError),
+    loading: readonly(restaurantLoading),
+    getRestaurant,
+  }
 });

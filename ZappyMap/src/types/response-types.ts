@@ -12,5 +12,17 @@ export interface Response {
     data: <T>(T:any) => T,
     code: number,
     error?:string | null,
+    loading: boolean,
+}
 
+
+
+export interface FetchOptions {
+    method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+    headers?: Record<string, string>;
+    body?: any;
+}
+
+export interface Api_interface {
+     readonly [key: string]: string | null | undefined;
 }
