@@ -1,4 +1,3 @@
-
 import { useFetch } from "@/core/composables/useFetch";
 import { AuthService } from "@/core/services/api.service";
 import { defineStore } from "pinia";
@@ -6,65 +5,47 @@ import { computed, readonly, ref } from 'vue';
 
 export const useAuthStore = defineStore('auth', () => {
 
-
   const data = ref<any>(null);
-  const loading = ref<boolean>(false);
-  const error = ref<any>(null);
 
-
-  const dataMemory = computed(() => data.value ?? []);
   const token = computed(() => data.value?.data?.user?.token || null);
-
-
-
 
   const {
     data: authData,
-    loading: authLoading,
-    error: authError,
+    loading,
+    error,
     execute: executeAuth
-  } = useFetch(AuthService.getTokenConfig().url, AuthService.getTokenConfig().options);  //Fetch personalizado para manejar errores y estados de carga
+  } = useFetch(
+    AuthService.getTokenConfig().url,
+    AuthService.getTokenConfig().options
+  );
 
-
-  /**
-   * Función para obtener el token de un endpoint específico. Actualiza el endpoint actual y ejecuta la solicitud.
-   * @param endpointKey 
-   * @returns 
-   */
-
-  const getToken = async (): Promise<void | null> => {
+  const getToken = async (): Promise<string | null> => {
     try {
       await executeAuth();
 
-      if (authError.value) {
-        console.error("Error obteniendo el token:", authError.value);
+      if (error.value) {
+        console.error("Error obteniendo el token:", error.value);
         return null;
       }
 
       if (authData.value) {
-        data.value = authData.value; // Actualizamos el estado con la respuesta de la API
-      } else {
-        console.warn("No se recibió data al obtener el token.");
-        return null;
+        data.value = authData.value;
+        return token.value;
       }
 
-      return token.value; // Devolvemos el token obtenido
+      return null;
 
-    } catch (error) {
-      console.error("Error obteniendo el token:", error);
+    } catch (err) {
+      console.error("Error obteniendo el token:", err);
       return null;
     }
   };
 
-
-
   return {
-
-    data: readonly(dataMemory),
+    data: readonly(data),
+    token,
     error: readonly(error),
     loading: readonly(loading),
-    token: token,
     getToken,
-  }
-
+  };
 });
