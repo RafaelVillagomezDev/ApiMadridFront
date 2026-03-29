@@ -1,5 +1,4 @@
 import { readonly, ref, toValue, type MaybeRefOrGetter, type Ref } from 'vue';
-import type { s } from 'vue-router/dist/router-CWoNjPRp.mjs';
 
 type ErrorType = 'NOT_FOUND' | 'SERVER_ERROR' | 'NETWORK_ERROR' | 'UNKNOWN';
 
@@ -10,20 +9,21 @@ interface AppError {
 }
 
 interface FetchOptions {
-    method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | string ;
+    method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | string;
     headers?: Record<string, string>;
     body?: any;
 }
 
 interface FetchResponse<T> {
     data: Ref<T | null>;
-    error: Ref<AppError | null>; // Ahora usamos nuestro objeto AppError
+    error: Ref<AppError | null>;
     loading: Ref<boolean>;
-    execute: () => Promise<void>;
+    // Execute ahora acepta parámetros opcionales
+    execute: (urlOverride?: string, optionsOverride?: FetchOptions) => Promise<void>;
 }
 
 export function useFetch<T = any>(
-    url: MaybeRefOrGetter<string>,
+    url?: MaybeRefOrGetter<string>,
     options: MaybeRefOrGetter<FetchOptions> = {}
 ): FetchResponse<T> {
     const data = ref<T | null>(null) as Ref<T | null>;
@@ -32,12 +32,18 @@ export function useFetch<T = any>(
 
     let controller: AbortController | null = null;
 
-    const fetchData = async () => {
-        const currentUrl = toValue(url);
-        const currentOptions = toValue(options);
+    // CORRECCIÓN: Aceptamos los overrides
+    const fetchData = async (urlOverride?: string, optionsOverride?: FetchOptions) => {
+        // Prioridad: 1. El parámetro de la función | 2. El parámetro inicial del composable
+        const currentUrl = urlOverride || toValue(url);
+        const currentOptions = optionsOverride || toValue(options);
 
         // 1. Validaciones previas
-        if (!currentUrl) return;
+        if (!currentUrl) {
+            console.warn("useFetch: No URL provided for execution.");
+            return;
+        }
+
         if (controller) controller.abort();
         controller = new AbortController();
 
@@ -45,16 +51,20 @@ export function useFetch<T = any>(
         error.value = null;
 
         try {
-            // 2. Preparar cuerpo (No enviar body en GET/HEAD)
-            const isGet = !currentOptions.method || currentOptions.method === 'GET';
+            const method = currentOptions.method?.toUpperCase() || 'GET';
+            const isGetOrHead = ['GET', 'HEAD'].includes(method);
+
             const fetchConfig: RequestInit = {
-                method: currentOptions.method || 'GET',
+                method,
                 headers: {
                     'Content-Type': 'application/json',
                     ...currentOptions.headers,
                 },
                 signal: controller.signal,
-                body: isGet ? null : (currentOptions.body ? JSON.stringify(currentOptions.body) : null)
+                // CORRECCIÓN: Lógica de body más limpia
+                body: !isGetOrHead && currentOptions.body 
+                    ? JSON.stringify(currentOptions.body) 
+                    : null
             };
 
             const response = await fetch(currentUrl, fetchConfig);
@@ -63,7 +73,6 @@ export function useFetch<T = any>(
                 let serverMessage = `Error ${response.status}: ${response.statusText}`;
                 
                 try {
-                    // CLONAMOS la respuesta para no agotar el stream original
                     const errorClone = response.clone();
                     const errorText = await errorClone.text();
 
@@ -83,7 +92,6 @@ export function useFetch<T = any>(
                 throw { message: serverMessage, type, status: response.status };
             }
 
-            // 3. Respuesta Exitosa
             data.value = await response.json();
 
         } catch (err: any) {
@@ -109,7 +117,7 @@ export function useFetch<T = any>(
 
     return {
         data,
-        error: readonly(error),
+        error: readonly(error) as Ref<AppError | null>,
         loading: readonly(loading),
         execute: fetchData
     };
