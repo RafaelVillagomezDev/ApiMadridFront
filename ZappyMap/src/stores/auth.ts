@@ -5,8 +5,7 @@ import { computed, readonly, ref } from 'vue';
 
 export const useAuthStore = defineStore('auth', () => {
 
-  const data = ref<any>(null);
-  const token = computed(() => data.value?.data?.user?.token || null);
+  const token = computed(() => authData.value?.data?.user?.token || null);
   const dataMemory = computed(() => authData.value);
 
 
@@ -37,8 +36,8 @@ export const useAuthStore = defineStore('auth', () => {
       console.warn("La API respondió OK pero el token es nulo.");
       return null;
     }
-   
-    return data.value?.data?.user?.token || null;
+
+    return authData.value?.data?.user?.token || null;
 
   };
 

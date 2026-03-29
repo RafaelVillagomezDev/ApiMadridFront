@@ -27,7 +27,13 @@ onMounted(() => {
   <section class="p-8 flex md:justify-center md:items-center ">
     <Banner />
   </section>
-  <section>
+  <section v-if="restaurants.length > 0">
     <CardCarrousell :restaurant="restaurants" />
+    {{ console.log(restaurants) }}
+  </section>
+  <section v-else-if="storeRestaurant.loading">
+    <p>Cargando restaurantes...</p> </section>
+  <section v-else>
+    <p>No hay restaurantes disponibles.</p>
   </section>
 </template>
