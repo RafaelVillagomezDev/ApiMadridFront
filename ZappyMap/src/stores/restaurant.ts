@@ -10,6 +10,7 @@ export const useRestaurantStore = defineStore('restaurant', () => {
 
   // Inyectamos el store de dependencia (DIP)
   const authStore = useAuthStore();
+  
 
   // Lo dejamos vacío inicialmente porque lo configuraremos en el 'execute'
   const {
@@ -24,6 +25,11 @@ export const useRestaurantStore = defineStore('restaurant', () => {
 
   /**
    * Acción: Obtener Restaurantes
+   * - Obtiene un token válido del store de autenticación.
+   * - Si no se obtiene un token, lanza un error.
+   * - Si se obtiene el token, configura la petición usando el servicio desacoplado y ejecuta la petición.
+   * - Maneja errores y estados de carga a través del composable useFetch.
+   * @returns void
    */
   const getRestaurant = async () => {
 
@@ -41,7 +47,7 @@ export const useRestaurantStore = defineStore('restaurant', () => {
   };
 
   return {
-    restaurants,
+    restaurants: readonly(restaurants),
     error: readonly(apiError),
     loading: readonly(apiLoading),
     getRestaurant,

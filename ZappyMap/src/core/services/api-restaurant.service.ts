@@ -4,7 +4,7 @@ const API_ENDPOINTS = {
 
 
 export const RestaurantService = {
-  
+
   getRestaurant: (token: string | null) => ({
     url: API_ENDPOINTS.RESTAURANT,
     options: {

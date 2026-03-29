@@ -6,8 +6,9 @@ import { computed, readonly, ref } from 'vue';
 export const useAuthStore = defineStore('auth', () => {
 
   const data = ref<any>(null);
-
   const token = computed(() => data.value?.data?.user?.token || null);
+  const dataMemory = computed(() => authData.value);
+
 
   const {
     data: authData,
@@ -19,30 +20,30 @@ export const useAuthStore = defineStore('auth', () => {
     AuthService.getTokenConfig().options
   );
 
+
+
+  /**
+   * Funcion para obtener el token de autenticación. Maneja errores y casos donde la API responde sin token.
+   * @returns token 
+   */
   const getToken = async (): Promise<string | null> => {
-    try {
-      await executeAuth();
 
-      if (error.value) {
-        console.error("Error obteniendo el token:", error.value);
-        return null;
-      }
+    await executeAuth();
 
-      if (authData.value) {
-        data.value = authData.value;
-        return token.value;
-      }
+    if (error.value) return null;
 
-      return null;
-
-    } catch (err) {
-      console.error("Error obteniendo el token:", err);
+    // API funcionó pero no trajo token
+    if (!token.value) {
+      console.warn("La API respondió OK pero el token es nulo.");
       return null;
     }
+   
+    return data.value?.data?.user?.token || null;
+
   };
 
   return {
-    data: readonly(data),
+    data: readonly(dataMemory),
     token,
     error: readonly(error),
     loading: readonly(loading),

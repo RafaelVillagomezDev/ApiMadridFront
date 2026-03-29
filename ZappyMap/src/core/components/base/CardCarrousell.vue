@@ -1,39 +1,14 @@
 <script lang="ts" setup>
+import type { Restaurant } from '@/types/restaurant-type';
+
+interface Props {
+  restaurant: Restaurant[]; 
+}
+
+const props = defineProps<Props>();
 
 
 
-const cards = [
-    {
-        id: 1,
-        title: 'Plan Básico',
-        desc: 'Ideal para quienes buscan una experiencia sencilla y económica.',
-        img: 'https://source.unsplash.com/random/400x300?sig=1'
-    },
-    {
-        id: 2,
-        title: 'Plan Premium',
-        desc: 'Perfecto para aquellos que desean características avanzadas y soporte prioritario lorem ipsum.',
-        img: 'https://source.unsplash.com/random/400x300?sig=2'
-    },
-    {
-        id: 3,
-        title: 'Plan Empresarial',
-        desc: 'Diseñado para grandes organizaciones con necesidades personalizadas y escalabilidad.',
-        img: 'https://source.unsplash.com/random/400x300?sig=3'
-    },
-    {
-        id: 4,
-        title: 'Plan Personalizado',
-        desc: 'Una solución a medida para satisfacer las necesidades específicas de tu negocio.',
-        img: 'https://source.unsplash.com/random/400x300?sig=4'
-    },
-    {
-        id: 5,
-        title: 'Plan de Prueba',
-        desc: 'Prueba nuestras características con este plan gratuito por tiempo limitado.',
-        img: 'https://source.unsplash.com/random/400x300?sig=5'
-    }
-];
 
 </script>
 
@@ -57,14 +32,14 @@ const cards = [
           }
         }
       }" class="pb-10 ">
-        <splide-slide v-for="card in cards" :key="card.id"  >
+        <splide-slide v-for="restaurant in props.restaurant" :key="restaurant.id"  >
           <div class="w-70 md:w-[320px] bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow duration-300">
-            <img :src="card.img" :alt="card.title" class="w-full h-48 object-cover">
+            <img :src="restaurant.images[0]?.url" :alt="restaurant.name" class="w-full h-48 object-cover">
             <div class="p-5">
               <span class="text-xs font-semibold text-blue-600 uppercase tracking-wide">Categoría</span>
-              <h3 class="mt-1 text-xl font-bold text-gray-900 line-clamp-1">{{ card.title }}</h3>
+              <h3 class="mt-1 text-xl font-bold text-gray-900 line-clamp-1">{{ restaurant.name }}</h3>
               <p class="mt-2 text-gray-600 text-sm leading-relaxed line-clamp-2">
-                {{ card.desc }}
+                {{ restaurant.description }}
               </p>
               <button class="mt-4 text-blue-500 font-medium hover:text-blue-700 transition-colors text-sm">
                 Leer más →

@@ -2,14 +2,13 @@
 import Banner from '@/core/components/base/Banner.vue';
 import CardCarrousell from '@/core/components/base/CardCarrousell.vue';
 import SeekerLayout from '@/core/layout/SeekerLayout.vue';
-import { useAuthStore } from '@/stores/auth';
 import { useRestaurantStore } from '@/stores/restaurant';
 import { storeToRefs } from 'pinia';
 import { onMounted } from 'vue';
 
-const storeRestaurant = useRestaurantStore()
+const storeRestaurant = useRestaurantStore();
 
-const {restaurants} = storeToRefs(storeRestaurant)
+const { restaurants } = storeToRefs(storeRestaurant);
 
 
 
@@ -29,7 +28,6 @@ onMounted(() => {
     <Banner />
   </section>
   <section>
-    <CardCarrousell />
-    {{ console.log(restaurants) }}
+    <CardCarrousell :restaurant="restaurants" />
   </section>
 </template>
