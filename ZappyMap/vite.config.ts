@@ -20,7 +20,7 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
       '@components': fileURLToPath(new URL('./src/components', import.meta.url)),
       '@layouts': fileURLToPath(new URL('./src/layouts', import.meta.url)),
-      '@assets': fileURLToPath(new URL('./src/assets', import.meta.url)),
+      '@assets': fileURLToPath(new URL('./src/core/assets', import.meta.url)),
       '@views': fileURLToPath(new URL('./src/views', import.meta.url)),
       '@core': fileURLToPath(new URL('./src/core', import.meta.url)),
       '@modules': fileURLToPath(new URL('./src/modules', import.meta.url)),

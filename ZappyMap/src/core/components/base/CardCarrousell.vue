@@ -1,5 +1,7 @@
 <script lang="ts" setup>
 import type { Restaurant } from '@/types/restaurant-type';
+import { UtensilsCrossed } from 'lucide-vue-next';
+import { RouterLink } from 'vue-router';
 
 interface Props {
   restaurant: Restaurant[];
@@ -14,10 +16,9 @@ const props = defineProps<Props>();
 
 
 <template>
-  <div class="bg-gray-100  p-4 md:p-8">
+  <div class="p-4 md:p-8">
     <div class="max-w-full overflow-hidden">
-      <h2 class="text-2xl font-bold text-gray-800 mb-6 px-6">Proyectos Recientes</h2>
-
+      <slot name="header"></slot>
       <splide v-if="props.restaurant.length > 0" :options="{
         type: 'slide',    /* 'slide' es más estable para filas largas que 'loop' si hay pocas cards */
         drag: 'free',     /* Permite desplazamiento fluido como en Netflix */
@@ -36,16 +37,24 @@ const props = defineProps<Props>();
         <splide-slide v-for="restaurant in props.restaurant" :key="restaurant.id">
           <div
             class=" flex flex-col  h-full w-70 md:w-[320px] bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow duration-300">
-            <img :src="restaurant.images[0]?.url" :alt="restaurant.name" class="w-full h-48 object-cover">
+            <RouterLink :to="`/restaurant/${restaurant.id}`">
+              <img :src="restaurant.images[0]?.url" :alt="restaurant.name" class="w-full h-48 object-cover">
+            </RouterLink>
+
             <div class="p-5 flex flex-col grow">
-              <span class="text-xs font-semibold text-blue-600 uppercase tracking-wide">Categoría</span>
+              <span
+                class=" inline-flex items-center gap-0.5 text-xs font-semibold text-blue-600 uppercase tracking-wide">
+                <UtensilsCrossed class="w-4" />{{ restaurant.type_food }}
+              </span>
               <h3 class="mt-1 text-xl font-bold text-gray-900 line-clamp-1">{{ restaurant.name }}</h3>
               <p class="mt-2 text-gray-600 text-sm leading-relaxed line-clamp-2 ">
                 {{ restaurant.description }}
               </p>
-              <button class=" mt-auto mt-4 text-blue-500 font-medium hover:text-blue-700 transition-colors text-sm">
+
+              <RouterLink :to="`/restaurant/${restaurant.id}`"
+                class=" mt-auto text-blue-500 font-medium hover:text-blue-700 transition-colors text-sm">
                 Leer más →
-              </button>
+              </RouterLink>
             </div>
           </div>
         </splide-slide>
@@ -60,7 +69,7 @@ const props = defineProps<Props>();
 */
 .splide__list {
   display: flex !important;
-   align-items: stretch;
+  align-items: stretch;
 }
 
 /* Asegura que el track no corte las sombras de las cards */
@@ -70,8 +79,9 @@ const props = defineProps<Props>();
 }
 
 :deep(.splide__slide) {
-  height: auto !important; /* Permite que el slide crezca */
-  display: flex;           /* Hace que la card interna pueda usar h-full */
+  height: auto !important;
+  /* Permite que el slide crezca */
+  display: flex;
+  /* Hace que la card interna pueda usar h-full */
 }
-
 </style>

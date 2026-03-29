@@ -34,7 +34,7 @@
         "./src/layouts/*"
       ],
       "@assets/*": [
-        "./src/assets/*"
+        "./src/core/assets/*"
       ],
       "@core/*": [
         "./src/core/*"

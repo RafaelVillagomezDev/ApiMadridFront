@@ -1,3 +1,4 @@
+import restaurantRoutes from '@/modules/restaurant/router/routes-restaurant'
 import { createRouter, createWebHistory } from 'vue-router'
 
 
@@ -13,6 +14,13 @@ const router = createRouter({
       path: '/home',
       redirect: '/'
     },
+    {
+      path: '/restaurant/:id', 
+      name: 'restaurant-detail',
+      component: () => import('@modules/restaurant/views/RestaurantDetail.vue'),
+      props: true 
+    },
+    restaurantRoutes
   ]
 })
 
