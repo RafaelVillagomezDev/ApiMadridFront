@@ -4,6 +4,7 @@ import { computed, readonly } from 'vue';
 import { RestaurantService } from "@/core/services/api-restaurant.service";
 import { useAuthStore } from "./auth";
 import { useFetch } from "@/core/composables/useFetch";
+import type { Restaurant } from "@/types/restaurant-type";
 
 
 export const useRestaurantStore = defineStore('restaurant', () => {
@@ -46,10 +47,20 @@ export const useRestaurantStore = defineStore('restaurant', () => {
 
   };
 
+  /**
+   * ACCIÓN: Buscar un restaurante por ID
+   */
+  const getRestaurantById = (id: string): Restaurant | undefined => {
+    return restaurants.value.find((restaurant: Restaurant) => restaurant.id === id);
+  };
+
+
+
   return {
     restaurants: readonly(restaurants),
     error: readonly(apiError),
     loading: readonly(apiLoading),
     getRestaurant,
+    getRestaurantById,
   };
 });

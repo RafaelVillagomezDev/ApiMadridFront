@@ -1,8 +1,12 @@
 const restaurantRoutes = {
     path: '/restaurant',
-    name: 'restaurant',
-    component: () => import('@modules/restaurant/views/Restaurant.vue'),
+    component: () => import('@modules/restaurant/views/RestaurantRender.vue'),
     children: [
+        {
+            path: '', // Esta es la ruta /restaurant
+            name: 'restaurant-list',
+            component: () => import('@modules/restaurant/views/Restaurant.vue'),
+        },
         {
             path: ':id',
             name: 'restaurant-detail',
