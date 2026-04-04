@@ -14,19 +14,19 @@ const props = defineProps<Props>();
 
 
 <template>
-  <div class="grid gap-4" :class="[
+  <div class="grid gap-y-4" :class="[
     (props.restaurant?.images && props.restaurant.images.length > 1)
       ? 'grid-cols-1 md:grid-cols-2'
       : 'grid-cols-1'
   ]">
     <slot name="image_description">
-      <div class="flex flex-row gap-2 justify-between">
+      <div class="flex flex-row gap-2 justify-between items-center">
         <h1 v-if="props.restaurant?.name" class="mb-2 text-xl font-bold">
           {{ props.restaurant.name }}
         </h1>
-        <div class="flex  gap-x-2 cursor-pointer">
-          <Heart />
-          <p>Guardar</p>
+        <div class="flex gap-x-1 md:gap-x-2 cursor-pointer items-center">
+          <Heart class="w-[16px] h-[16px] md:w-5 md:h-5 flex-shrink-0" />
+          <p class="text-sm md:text-base">Guardar</p>
         </div>
       </div>
 

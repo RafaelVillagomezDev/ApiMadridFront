@@ -8,7 +8,7 @@ import FooterLayout from './core/layout/FooterLayout.vue';
     <header>
       <NavbarLayout />
     </header>
-    <main class="grow">
+    <main class="grow p-8">
       <RouterView />
     </main>
     <FooterLayout />
