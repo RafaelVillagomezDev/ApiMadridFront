@@ -4,7 +4,7 @@ import { UtensilsCrossed } from 'lucide-vue-next';
 import { RouterLink } from 'vue-router';
 
 interface Props {
-  restaurant: Restaurant[];
+  restaurants: Restaurant[];
 }
 
 const props = defineProps<Props>();
@@ -19,7 +19,7 @@ const props = defineProps<Props>();
   <div class="p-4 md:p-8">
     <div class="max-w-full overflow-hidden">
       <slot name="header"></slot>
-      <splide v-if="props.restaurant.length > 0" :options="{
+      <splide v-if="props.restaurants.length > 0" :options="{
         type: 'slide',    /* 'slide' es más estable para filas largas que 'loop' si hay pocas cards */
         drag: 'free',     /* Permite desplazamiento fluido como en Netflix */
         snap: true,
@@ -34,7 +34,7 @@ const props = defineProps<Props>();
           }
         }
       }" class="pb-10 ">
-        <splide-slide v-for="restaurant in props.restaurant" :key="restaurant.id">
+        <splide-slide v-for="restaurant in props.restaurants" :key="restaurant.id">
           <div
             class=" flex flex-col  h-full w-70 md:w-[320px] bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow duration-300">
             <RouterLink :to="`/restaurant/${restaurant.id}`">

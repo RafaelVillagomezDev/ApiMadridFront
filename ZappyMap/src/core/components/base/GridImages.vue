@@ -19,13 +19,16 @@ const props = defineProps<Props>();
       ? 'grid-cols-1 md:grid-cols-2'
       : 'grid-cols-1'
   ]">
-    <slot name="image_description" class="flex flex-col gap-2">
-       <h1 v-if="props.restaurant?.name" class="mb-2 text-xl font-bold">
-        {{ props.restaurant.name }}
-      </h1>
+    <slot name="image_description">
+      <div class="flex flex-col gap-2">
+        <h1 v-if="props.restaurant?.name" class="mb-2 text-xl font-bold">
+          {{ props.restaurant.name }}
+        </h1>
+      </div>
+
     </slot>
     <div class="w-full h-full">
-      
+
       <slot name="image_main">
         <img :src="props.restaurant?.images[0]?.url" class="w-full h-full object-cover rounded"
           :alt="props.restaurant?.name" />

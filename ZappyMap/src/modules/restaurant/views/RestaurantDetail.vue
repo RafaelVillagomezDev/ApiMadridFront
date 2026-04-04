@@ -15,7 +15,7 @@ const restaurant = computed(() => storeRestaurant.getRestaurantById(props.id));
   
     <div >
         
-        <GridImages v-if="restaurant" class="max-w-[1136px] h-[410px] mx-auto w-full overflow-hidden" :restaurant="restaurant"/>
+        <GridImages v-if="restaurant" class="max-w-[1136px] h-[410px] mx-auto w-full overflow-hidden p-4 md:p-8" :restaurant="restaurant"/>
             
             
     </div>

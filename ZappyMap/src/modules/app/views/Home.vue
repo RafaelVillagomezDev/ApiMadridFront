@@ -28,7 +28,7 @@ onMounted(() => {
     <Banner />
   </section>
   <section v-if="restaurants.length > 0">
-    <CardCarrousell :restaurant="restaurants" >
+    <CardCarrousell :restaurants="restaurants">
       <template #header>
         <h2 class="text-2xl font-bold text-gray-800 mb-6 px-6">Restaurantes</h2>
       </template>

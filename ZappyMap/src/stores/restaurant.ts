@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { computed, readonly } from 'vue';
+import { computed, readonly, ref } from 'vue';
 
 import { RestaurantService } from "@/core/services/api-restaurant.service";
 import { useAuthStore } from "./auth";
@@ -11,8 +11,14 @@ export const useRestaurantStore = defineStore('restaurant', () => {
 
   // Inyectamos el store de dependencia (DIP)
   const authStore = useAuthStore();
-  
 
+  const restaurants = ref<Restaurant[]>([]);
+  const searchQuery = ref<string>("");
+  const filters = ref({
+    name: '',
+    address: '',
+    type_food: ''
+  });
   // Lo dejamos vacío inicialmente porque lo configuraremos en el 'execute'
   const {
     data: restaurantResponse,
@@ -22,7 +28,7 @@ export const useRestaurantStore = defineStore('restaurant', () => {
   } = useFetch();
 
 
-  const restaurants = computed(() => restaurantResponse.value?.data || []);
+
 
   /**
    * Acción: Obtener Restaurantes
@@ -44,7 +50,9 @@ export const useRestaurantStore = defineStore('restaurant', () => {
 
     // Ejecutamos la petición usando la configuración
     await executeFetch(url, options);
-
+    if (restaurantResponse.value?.data) {
+      restaurants.value = restaurantResponse.value.data;
+    }
   };
 
   /**
@@ -57,10 +65,18 @@ export const useRestaurantStore = defineStore('restaurant', () => {
 
 
   return {
-    restaurants: readonly(restaurants),
+    restaurants: restaurants,
     error: readonly(apiError),
     loading: readonly(apiLoading),
     getRestaurant,
     getRestaurantById,
+    searchQuery: searchQuery
   };
+}, {
+  persist: {
+    key: 'restaurant-store',
+    storage: localStorage,
+    pick: ['restaurants'],
+  }
+  
 });
