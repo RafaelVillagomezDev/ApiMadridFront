@@ -5,6 +5,7 @@ import { RestaurantService } from "@/core/services/api-restaurant.service";
 import { useAuthStore } from "./auth";
 import { useFetch } from "@/core/composables/useFetch";
 import type { Restaurant } from "@/types/restaurant-type";
+import router from "@/core/router/routes";
 
 
 export const useRestaurantStore = defineStore('restaurant', () => {
@@ -13,7 +14,7 @@ export const useRestaurantStore = defineStore('restaurant', () => {
   const authStore = useAuthStore();
 
   const restaurants = ref<Restaurant[]>([]);
-  const searchQuery = ref<string>("");
+  const restaurantSearchResults = ref<Restaurant[]>([]);
   const filters = ref({
     name: '',
     address: '',
@@ -26,7 +27,6 @@ export const useRestaurantStore = defineStore('restaurant', () => {
     loading: apiLoading,
     execute: executeFetch
   } = useFetch();
-
 
 
 
@@ -56,6 +56,39 @@ export const useRestaurantStore = defineStore('restaurant', () => {
   };
 
   /**
+   * Acción de busqqueda de restaurantes mediante filtros
+   * - Obtiene un token válido del store de autenticación.
+   * - Si no se obtiene un token, lanza un error.
+   * - Si se obtiene el token, configura la petición usando el servicio desacoplado y ejecuta la petición.
+   * - Si se obtienen resultados, actualiza el estado de búsqueda y redirige al detalle del primer restaurante encontrado.
+   * - Maneja errores y estados de carga a través del composable useFetch.
+   * @returns void
+   */
+
+  const searchRestaurant = async () => {
+    const token = await authStore.getToken();
+    let restaurantIdSearchResults = [];
+
+    if (!token) {
+      throw new Error("No se pudo recuperar un token válido.");
+    }
+    const { url, options } = RestaurantService.getRestaurant(token, filters.value);
+
+    await executeFetch(url, options);
+
+    if (restaurantResponse.value?.data) {
+      restaurantSearchResults.value = restaurantResponse.value.data;
+      restaurantIdSearchResults = restaurantSearchResults.value.map(restaurant => restaurant.id);
+      await router.push({
+        name: 'restaurant-detail',
+        params: { id: restaurantIdSearchResults[0] }
+      });
+
+    }
+
+  }
+
+  /**
    * ACCIÓN: Buscar un restaurante por ID
    */
   const getRestaurantById = (id: string): Restaurant | undefined => {
@@ -65,12 +98,14 @@ export const useRestaurantStore = defineStore('restaurant', () => {
 
 
   return {
+    filters: filters,
     restaurants: restaurants,
+    restaurantSearchResults: restaurantSearchResults,
     error: readonly(apiError),
     loading: readonly(apiLoading),
     getRestaurant,
     getRestaurantById,
-    searchQuery: searchQuery
+    searchRestaurant,
   };
 }, {
   persist: {
@@ -78,5 +113,5 @@ export const useRestaurantStore = defineStore('restaurant', () => {
     storage: localStorage,
     pick: ['restaurants'],
   }
-  
+
 });

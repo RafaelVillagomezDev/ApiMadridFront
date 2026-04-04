@@ -12,7 +12,7 @@ export const RestaurantService = {
 
     // Ahora Object.entries no fallará aunque no envíes filtros
     Object.entries(filters).forEach(([key, value]) => {
-      // Solo agregamos al query string si el valor no es null, undefined o string vacío
+
       if (value !== undefined && value !== null && value !== '') {
         params.append(key, String(value));
       }
