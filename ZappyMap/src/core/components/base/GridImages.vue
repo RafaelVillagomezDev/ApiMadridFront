@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { Restaurant } from '@/types/restaurant-type';
-
+import { Heart } from 'lucide-vue-next';
 
 interface Props {
   restaurant: Restaurant | undefined;
@@ -20,10 +20,14 @@ const props = defineProps<Props>();
       : 'grid-cols-1'
   ]">
     <slot name="image_description">
-      <div class="flex flex-col gap-2">
+      <div class="flex flex-row gap-2 justify-between">
         <h1 v-if="props.restaurant?.name" class="mb-2 text-xl font-bold">
           {{ props.restaurant.name }}
         </h1>
+        <div class="flex  gap-x-2 cursor-pointer">
+          <Heart />
+          <p>Guardar</p>
+        </div>
       </div>
 
     </slot>

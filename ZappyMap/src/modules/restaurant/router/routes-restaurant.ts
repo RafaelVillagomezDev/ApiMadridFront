@@ -5,7 +5,7 @@ const restaurantRoutes = {
         {
             path: '', // Esta es la ruta /restaurant
             name: 'restaurant-list',
-            component: () => import('@modules/restaurant/views/Restaurant.vue'),
+            component: () => import('@modules/restaurant/views/Restaurants.vue'),
         },
         {
             path: ':id',

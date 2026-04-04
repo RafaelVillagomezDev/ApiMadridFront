@@ -15,7 +15,7 @@ withDefaults(defineProps<RouterNavbar>(), {
 </script>
 
 <template>
-    <nav class="flex flex-row gap-1">
+    <nav class="gap-1">
         <RouterLink :class="customClassRouterLink" v-for="item in routerCustom" :key="item.linkCustom"
             :to="item.linkCustom">
             <slot>
