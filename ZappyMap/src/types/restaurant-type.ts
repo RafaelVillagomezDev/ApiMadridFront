@@ -14,12 +14,20 @@ interface Images{
   url: string;
 }
 
+interface Dishes{
+  id:string,
+  name:string;
+  price:number;
+  category:string;
+  description:string;
+}
+
 interface Menus{
   id: string;
-  relatedId: string;
-  relatedType: string;
-  url: string;
-  createdAt: string;
+  name :string;
+  description:string;
+  dishes:Dishes[]
+  
 }
 
 export interface Restaurant {
