@@ -20,7 +20,7 @@ const iconClass = "w-4 h-4 md:w-5 md:h-5 flex-shrink-0 text-emerald-500";
         </p>
 
         <div class="pt-2">
-            <h2 class="font-bold text-lg border-b pb-2 mb-4">Detalles</h2>
+            <h2 class="font-bold text-lg border-b border-b-gray-200 pb-2 mb-4 ">Detalles</h2>
 
             <ul class="space-y-3">
                 <li v-if="restaurant.email">

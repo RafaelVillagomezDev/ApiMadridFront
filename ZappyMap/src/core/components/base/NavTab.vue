@@ -2,7 +2,7 @@
 
 import { ref, computed } from 'vue';
 import DescriptionTab from '@core/components/tabs/DescriptionTab.vue';
-import DetailTab from '@core/components/tabs/DetailTab.vue';
+import LocationTab from '@core/components/tabs/LocationTab.vue';
 import type { Restaurant } from '@/types/restaurant-type';
 
 interface Props {
@@ -16,8 +16,8 @@ const activeTab = ref('home');
 
 const tabs = {
   Descripción: DescriptionTab,
-  Detalles: DetailTab
-};
+  Localización: LocationTab
+}
 
 const currentComponent = computed(() => {
   return tabs[activeTab.value as keyof typeof tabs] || DescriptionTab;

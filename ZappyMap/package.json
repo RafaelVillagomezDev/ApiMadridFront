@@ -24,6 +24,7 @@
   "dependencies": {
     "@splidejs/vue-splide": "^0.6.12",
     "@vee-validate/zod": "^4.15.1",
+    "leaflet": "^1.9.4",
     "lucide-vue-next": "^0.575.0",
     "pinia": "^3.0.4",
     "pinia-plugin-persistedstate": "^4.7.1",
@@ -38,6 +39,7 @@
     "@tailwindcss/postcss": "^4.2.0",
     "@tsconfig/node24": "^24.0.4",
     "@types/jsdom": "^27.0.0",
+    "@types/leaflet": "^1.9.21",
     "@types/node": "^24.10.13",
     "@vitejs/plugin-vue": "^6.0.4",
     "@vitest/eslint-plugin": "^1.6.9",

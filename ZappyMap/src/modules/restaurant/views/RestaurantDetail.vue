@@ -12,11 +12,20 @@ const restaurant = computed(() => storeRestaurant.getRestaurantById(props.id));
 </script>
 
 <template>
-    <div >
-        <GridImages v-if="restaurant" class="max-w-[1136px] h-[410px] mx-auto w-full overflow-hidden"
-            :restaurant="restaurant" />
-        <div class="grid grid-cols-8 pt-4">
-            <NavTab class="col-start-1 md:col-start-2  col-end-9 md:col-end-5 w-full overflow-hidden " :restaurant="restaurant" />
-        </div>
+    <div class="max-w-[1136px] mx-auto px-4 w-full">
+    <div class="w-full h-[300px] md:h-[410px] overflow-hidden rounded-xl">
+        <GridImages 
+            v-if="restaurant" 
+            class="w-full h-full object-cover"
+            :restaurant="restaurant" 
+        />
     </div>
+
+    <div class="grid grid-cols-4 lg:grid-cols-10 gap-4 pt-6">
+        <NavTab 
+            class="col-span-4 lg:col-start-1 lg:col-end-9 w-full" 
+            :restaurant="restaurant" 
+        />
+    </div>
+</div>
 </template>

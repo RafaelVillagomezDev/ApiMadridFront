@@ -35,3 +35,4 @@ export interface Restaurant {
   images:Images[];
   menus:Menus[];
 }
+
