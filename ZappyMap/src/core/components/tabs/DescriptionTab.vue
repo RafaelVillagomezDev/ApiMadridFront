@@ -129,7 +129,7 @@ const iconClass = "w-4 h-4 md:w-5 md:h-5 flex-shrink-0 text-emerald-500";
             </dl>
         </section>
         <section class="pt-2">
-            <h2 class="font-bold text-xl text-gray-800 border-b border-gray-100 pb-3 mb-5">Metodos de pago</h2>
+            <h2 class="font-bold text-xl text-gray-800 border-b border-gray-100 pb-3 mb-5">Métodos de pago</h2>
             <dl class="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-6">
                 <div class="flex items-start gap-x-3">
                     <dt :class="iconClass" aria-hidden="true">
@@ -160,7 +160,7 @@ const iconClass = "w-4 h-4 md:w-5 md:h-5 flex-shrink-0 text-emerald-500";
                         <Wallet class="w-full h-full" />
                     </dt>
                     <dd class="flex-1">
-                        <span class="block text-xs text-gray-400 uppercase tracking-wider font-bold mb-2">Otros metodos de
+                        <span class="block text-xs text-gray-400 uppercase tracking-wider font-bold mb-2">Otros métodos de
                             pago</span>
                         <dl class="flex gap-x-3">
                             <div class="flex items-center p-1 border border-gray-100 rounded-md bg-white shadow-sm">
