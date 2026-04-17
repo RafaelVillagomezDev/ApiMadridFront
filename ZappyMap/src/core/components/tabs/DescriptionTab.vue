@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import type { Restaurant } from '@/types/restaurant-type';
-import { Mails, Utensils, Phone, PanelsTopLeft } from 'lucide-vue-next';
-
+import { Mails, Utensils, Phone, PanelsTopLeft, CreditCard, Wallet } from 'lucide-vue-next';
+import Visa from "@assets/icons/visa.svg";
+import Mastercard from "@assets/icons/mastercard.svg"
+import ApplePay from "@assets/icons/apple_pay.svg"
+import Cash from "@assets/icons/cash.svg"
 interface Props {
     restaurant: Restaurant | undefined;
 }
@@ -21,7 +24,7 @@ const iconClass = "w-4 h-4 md:w-5 md:h-5 flex-shrink-0 text-emerald-500";
             </p>
         </section>
 
-        <section class="pt-2" v-if="restaurant?.menus.length>0">
+        <section class="pt-2" v-if="restaurant?.menus.length > 0">
             <h2 class="font-bold text-xl text-gray-800 border-b border-gray-100 pb-3 mb-4">Carta</h2>
 
             <p
@@ -61,7 +64,7 @@ const iconClass = "w-4 h-4 md:w-5 md:h-5 flex-shrink-0 text-emerald-500";
                                 <div class="flex-shrink-0">
                                     <span
                                         class="font-semibold text-gray-900 bg-white px-2 py-1 rounded-lg border border-gray-100 shadow-sm">
-                                        {{ Number(dish.price)}}€
+                                        {{ Number(dish.price) }}€
                                     </span>
                                 </div>
                             </div>
@@ -121,6 +124,49 @@ const iconClass = "w-4 h-4 md:w-5 md:h-5 flex-shrink-0 text-emerald-500";
                             class="text-emerald-600 hover:underline transition-colors text-sm md:text-base truncate block font-medium">
                             Visitar sitio web
                         </a>
+                    </dd>
+                </div>
+            </dl>
+        </section>
+        <section class="pt-2">
+            <h2 class="font-bold text-xl text-gray-800 border-b border-gray-100 pb-3 mb-5">Metodos de pago</h2>
+            <dl class="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-6">
+                <div class="flex items-start gap-x-3">
+                    <dt :class="iconClass" aria-hidden="true">
+                        <CreditCard class="w-full h-full" />
+                    </dt>
+                    <dd class="min-w-0 flex-1">
+                        <span class="block text-xs text-gray-500 uppercase tracking-widest font-bold mb-2">
+                            Tarjetas
+                        </span>
+
+                        <dl class="flex gap-x-3">
+                            <div class="flex items-center p-1 border border-gray-100 rounded-md bg-white shadow-sm">
+                                <img :src=Visa alt="Visa" class="w-5 md:w-8 h-auto object-contain" />
+                            </div>
+
+                            <div class="flex items-center p-1 border border-gray-100 rounded-md bg-white shadow-sm">
+                                <img :src=Mastercard alt="Mastercard" class="w-5 md:w-8 h-auto object-contain" />
+                            </div>
+                            <div class="flex items-center p-1 border border-gray-100 rounded-md bg-white shadow-sm">
+                                <img :src=ApplePay alt="ApplePay" class="w-5 md:w-8 h-auto object-contain" />
+                            </div>
+                        </dl>
+                    </dd>
+                </div>
+
+                <div class="flex items-start gap-x-3">
+                    <dt :class="iconClass" aria-hidden="true">
+                        <Wallet class="w-full h-full" />
+                    </dt>
+                    <dd class="flex-1">
+                        <span class="block text-xs text-gray-400 uppercase tracking-wider font-bold mb-2">Otros metodos de
+                            pago</span>
+                        <dl class="flex gap-x-3">
+                            <div class="flex items-center p-1 border border-gray-100 rounded-md bg-white shadow-sm">
+                                <img :src=Cash alt="Cash" class="w-5 md:w-7 h-auto object-contain" />
+                            </div>
+                        </dl>
                     </dd>
                 </div>
             </dl>
