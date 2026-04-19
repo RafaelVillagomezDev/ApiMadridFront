@@ -4,10 +4,9 @@ import CardCarrousell from '@/core/components/base/CardCarrousell.vue';
 import SeekerLayout from '@/core/layout/SeekerLayout.vue';
 import { useRestaurantStore } from '@/stores/restaurant';
 import { storeToRefs } from 'pinia';
-import { onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
 
 const storeRestaurant = useRestaurantStore();
-
 const { restaurants } = storeToRefs(storeRestaurant);
 
 
@@ -33,11 +32,13 @@ onMounted(() => {
         <h2 class="text-2xl font-bold text-gray-800 mb-6 px-6">Restaurantes</h2>
       </template>
     </CardCarrousell>
-    
+
   </section>
   <section v-else-if="storeRestaurant.loading">
-    <p>Cargando restaurantes...</p> </section>
+    <p>Cargando restaurantes...</p>
+  </section>
   <section v-else>
     <p>No hay restaurantes disponibles.</p>
   </section>
+
 </template>
