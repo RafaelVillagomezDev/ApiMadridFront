@@ -1,21 +1,14 @@
 <script setup lang="ts">
 import logo from '@core/assets/icons/logo.svg';
-import Nav from '../components/base/Nav.vue';
-import { ref } from 'vue'
-import { Menu} from 'lucide-vue-next'
-import MenuBurguer from '../components/modal/MenuBurguer.vue';
 
-const routerCustom = ref([{
-    linkCustom: '/home',
-    linkTitle: 'Inicio',
-},{
-    linkCustom: '/restaurant',
-    linkTitle: 'Restaurantes',
-}])
+import { ref } from 'vue'
+import { Menu, Heart } from 'lucide-vue-next'
+import MenuBurguer from '../components/modal/MenuBurguer.vue';
+import Favourites from '../components/modal/Favourites.vue';
 
 
 const isModalVisible = ref(false)
-
+const isModalFavourite = ref(false)
 
 </script>
 
@@ -25,13 +18,17 @@ const isModalVisible = ref(false)
             <img :src="logo" class="w-10 h-10 object-contain" alt="Logo" />
             <h1 class="text-xl font-bold text-slate-900 ">ZappyMap</h1>
         </div>
-        <div class="flex items-center">
-            <Nav class="hidden md:block " :routerCustom="routerCustom" />
+        <div class="flex items-center gap-2.5">
+
             <button v-if="!isModalVisible" type="button" aria-label="Abrir menú" @click="isModalVisible = true">
-                <Menu class="block sm:hidden" />
+                <Menu :size="19" />
             </button>
-            
-            <MenuBurguer v-if="isModalVisible != null" v-model="isModalVisible"  />
+            <button v-if="!isModalFavourite" type="button" aria-label="Abrir favoritos"
+                @click="isModalFavourite = true">
+                <Heart :size="19" />
+            </button>
+            <Favourites v-if="isModalFavourite" v-model="isModalFavourite" />
+            <MenuBurguer v-if="isModalVisible != null" v-model="isModalVisible" />
         </div>
     </section>
 </template>

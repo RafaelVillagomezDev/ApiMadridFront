@@ -19,7 +19,7 @@ const closeNav = () => {
 
 <template>
     <Teleport to="body">
-        <div v-if="isOpen" class="fixed inset-0 z-[100] md:hidden">
+        <div v-if="isOpen" class="fixed inset-0 z-[100]">
             
             <Transition
                 enter-active-class="transition-opacity duration-300 ease-out"
@@ -52,7 +52,7 @@ const closeNav = () => {
                         >
                             <X :size="28" />
                         </button>
-
+                        
                         <Nav 
                             :routerCustom="routerCustom" 
                             :customClassRouterLink="customClassRouterLink" 
@@ -64,6 +64,3 @@ const closeNav = () => {
     </Teleport>
 </template>
 
-<style scoped>
-/* No necesitas CSS extra, todo está en las clases de Tailwind */
-</style>
