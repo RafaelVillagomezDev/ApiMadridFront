@@ -1,9 +1,15 @@
 <script setup lang="ts">
 const isOpen = defineModel<boolean>()
-import { X } from 'lucide-vue-next';
+import { useFavouritesStore } from '@/stores/favourites';
+import { X, Trash } from 'lucide-vue-next';
+import { storeToRefs } from 'pinia';
 const closeNav = () => {
     isOpen.value = false;
 }
+
+const store = useFavouritesStore()
+const { favourites } = storeToRefs(store)
+
 </script>
 
 <template>
@@ -35,26 +41,28 @@ const closeNav = () => {
 
                         <div class="grid grid-cols-2 w-full gap-y-6 gap-x-4 justify-between">
 
-                            <div 
+
+                            <div v-for="item in favourites" :key="item.id"
                                 class="bg-white border border-slate-100 p-3 w-full max-w-[150px] rounded-2xl shadow-sm">
 
-                                <div class="aspect-square bg-slate-50 rounded-xl mb-2 overflow-hidden">
-                                    <img class="w-full h-full object-cover" />
+                                <div class="relative aspect-square mb-2 group">
+                                    <RouterLink :to="`/restaurant/${item.id}`">
+                                        <div class="w-full h-full rounded-xl overflow-hidden bg-slate-50">
+                                            <img v-if="item.images?.[0]" :src="item.images[0].url"
+                                                class="w-full h-full object-cover" />
+                                        </div>
+                                    </RouterLink>
+
+
+                                    <button @click="store.removeFavourite(item.id)" type="button"
+                                        aria-label="eliminar favorito"
+                                        class="absolute top-[-25px] right-[-22px] flex items-center justify-center w-7 h-7 rounded-full bg-white text-red-500 shadow-md border border-slate-100 hover:bg-red-500 hover:text-white transition-all active:scale-90 z-10">
+                                        <Trash :size="12" />
+                                    </button>
                                 </div>
 
-                                <p class="text-sm font-semibold truncate px-1">ss</p>
+                                <p class="text-sm font-semibold truncate px-1">{{ item.name }}</p>
                             </div>
-
-                            <div 
-                                class="bg-white border border-slate-100 p-3 w-full max-w-[150px] rounded-2xl shadow-sm">
-
-                                <div class="aspect-square bg-slate-50 rounded-xl mb-2 overflow-hidden">
-                                    <img class="w-full h-full object-cover" />
-                                </div>
-
-                                <p class="text-sm font-semibold truncate px-1">ss</p>
-                            </div>
-                            
 
                         </div>
                     </div>

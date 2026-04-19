@@ -21,6 +21,8 @@ export const useFavouritesStore = defineStore('favourites', () => {
         }
     };
 
+    
+
     const isFavourite = computed(() => {
         return (id: string | number | undefined) =>
             favourites.value.some(fav => fav.id === id);
