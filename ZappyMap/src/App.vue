@@ -5,6 +5,8 @@ import { ref } from 'vue';
 import Favourites from './core/components/modal/Favourites.vue';
 import MenuBurguer from './core/components/modal/MenuBurguer.vue';
 
+
+
 const isModalVisible = ref(false)
 const isModalFavourite = ref(false)
 

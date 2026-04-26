@@ -11,7 +11,7 @@ const routerCustom = ref([
 ])
 
 const customClassRouterLink = ref("text-slate-900 text-xl flex flex-row items-center gap-2 cursor-pointer");
-
+const customClassNav =ref("flex flex-col gap-y-4")
 const closeNav = () => {
     isOpen.value = false;
 }
@@ -56,6 +56,7 @@ const closeNav = () => {
                         <Nav 
                             :routerCustom="routerCustom" 
                             :customClassRouterLink="customClassRouterLink" 
+                            :customClassNav="customClassNav"
                         />
                     </div>
                 </div>

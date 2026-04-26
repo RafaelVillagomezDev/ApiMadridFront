@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { useFavouritesStore } from '@/stores/favourites';
 import logo from '@core/assets/icons/logo.svg';
 import { Menu, Heart } from 'lucide-vue-next';
+import { storeToRefs } from 'pinia';
 
 
 defineProps<{
@@ -8,6 +10,8 @@ defineProps<{
     isFavOpen: boolean;
 }>();
 
+const store = useFavouritesStore();
+const { totalFavourites } = storeToRefs(store);
 
 const emit = defineEmits<{
     (e: 'update:isMenuOpen', value: boolean): void;
@@ -24,13 +28,18 @@ const emit = defineEmits<{
 
         <div class="flex items-center gap-2.5">
             <button type="button" aria-label="Abrir favoritos" @click="emit('update:isFavOpen', true)"
-                class="p-2 hover:bg-slate-100 rounded-full transition-colors">
-                <Heart :size="19" :class="{ 'fill-red-500 text-red-500': isFavOpen }" />
+                class="relative p-2 hover:bg-slate-100 rounded-full transition-colors">
+                <Heart :size="20" :class="{ 'fill-red-500 text-red-500': isFavOpen || totalFavourites > 0 }" />
+
+                <span v-if="totalFavourites > 0"
+                    class="absolute top-1 right-0 flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-bold text-white ring-2 ring-white">
+                    {{ totalFavourites }}
+                </span>
             </button>
 
             <button type="button" aria-label="Abrir menú" @click="emit('update:isMenuOpen', true)"
                 class="p-2 hover:bg-slate-100 rounded-full transition-colors">
-                <Menu :size="19" />
+                <Menu :size="20" />
             </button>
         </div>
     </nav>
