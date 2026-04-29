@@ -2,10 +2,11 @@
 import Banner from "@/core/components/base/Banner.vue";
 import Card from "@/core/components/base/Card.vue";
 import GridCard from "@/core/components/base/GridCard.vue";
+import { useFavouritesStore } from "@/stores/favourites";
 import { useRestaurantStore } from "@/stores/restaurant";
+import type { Restaurant } from "@/types/restaurant-type";
 import { storeToRefs } from "pinia";
 import { computed } from "vue";
-
 const storeRestaurant = useRestaurantStore();
 const { restaurants } = storeToRefs(storeRestaurant);
 
@@ -15,6 +16,14 @@ const bannerData = computed(() => ({
   titleHighlight: `${restaurants.value.length} restaurantes.`,
   subtitle: "¡Explora y encuentra tu próximo lugar favorito para comer!",
 }));
+
+const props = defineProps<Restaurant>();
+const store = useFavouritesStore();
+
+const handleToggleFavourite = (item: Restaurant | undefined) => {
+  if (!item) return;
+  store.toggleFavourite(item);
+};
 </script>
 
 <template>
@@ -31,6 +40,7 @@ const bannerData = computed(() => ({
         titleAlt: item.name,
         id: item.id,
       }"
+      :toggleFavourite="() => handleToggleFavourite(item)"
     >
       <template #cardText>
         <div class="px-4 py-6">

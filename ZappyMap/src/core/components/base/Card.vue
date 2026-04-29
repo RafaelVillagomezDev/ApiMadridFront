@@ -4,10 +4,15 @@
   generic="T extends { imageSm?: string | null; imageMd?: string | null; titleAlt?: string | null; id?: string | null }"
 >
 import { Heart } from "lucide-vue-next";
-
+import { ImageOff } from "lucide-vue-next";
 const props = defineProps<{
   content?: T;
+  toggleFavourite: Function;
 }>();
+
+const executeToggleFavourite = () => {
+  props.toggleFavourite();
+};
 </script>
 
 <template>
@@ -30,7 +35,8 @@ const props = defineProps<{
             </picture>
           </router-link>
           <button
-            class="p-1 inline-flex items-center top-2 right-2 bg-gray-300 rounded-full text-xs font-semibold text-white absolute"
+            @click="executeToggleFavourite"
+            class="p-1 cursor-pointer inline-flex items-center top-2 right-2 bg-gray-300ation-ed-full text-xs font-semibold text-white absolute"
           >
             <Heart :size="18" />
           </button>
@@ -52,7 +58,7 @@ const props = defineProps<{
       >
         <slot name="placeholder">
           <div class="flex flex-col items-center text-gray-400">
-            <span class="text-2xl">🖼️</span>
+            <ImageOff :size="32" />
             <p class="text-xs mt-1">No hay imagen</p>
           </div>
         </slot>
