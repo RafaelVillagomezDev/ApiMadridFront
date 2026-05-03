@@ -24,6 +24,11 @@ const handleToggleFavourite = (item: Restaurant | undefined) => {
   if (!item) return;
   store.toggleFavourite(item);
 };
+
+const isFav = (item: Restaurant | undefined) => {
+  if (!item) return false;
+  return store.isFavourite(item.id);
+};
 </script>
 
 <template>
@@ -41,6 +46,7 @@ const handleToggleFavourite = (item: Restaurant | undefined) => {
         id: item.id,
       }"
       :toggleFavourite="() => handleToggleFavourite(item)"
+      :isFavourite="isFav(item)"
     >
       <template #cardText>
         <div class="px-4 py-6">
