@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Banner from "@/core/components/base/Banner.vue";
 import Card from "@/core/components/base/Card.vue";
+import FilterTab from "@/core/components/base/FilterTab.vue";
 import GridCard from "@/core/components/base/GridCard.vue";
 import { useFavouritesStore } from "@/stores/favourites";
 import { useRestaurantStore } from "@/stores/restaurant";
@@ -35,6 +36,7 @@ const isFav = (item: Restaurant | undefined) => {
   <section class="p-4 flex md:justify-center md:items-center">
     <Banner :content="bannerData" />
   </section>
+  <FilterTab />
   <GridCard v-if="restaurants">
     <Card
       v-for="item in restaurants"
