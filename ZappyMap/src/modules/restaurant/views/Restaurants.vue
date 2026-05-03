@@ -21,6 +21,8 @@ const bannerData = computed(() => ({
 const props = defineProps<Restaurant>();
 const store = useFavouritesStore();
 
+
+
 const handleToggleFavourite = (item: Restaurant | undefined) => {
   if (!item) return;
   store.toggleFavourite(item);
@@ -36,7 +38,8 @@ const isFav = (item: Restaurant | undefined) => {
   <section class="p-4 flex md:justify-center md:items-center">
     <Banner :content="bannerData" />
   </section>
-  <FilterTab />
+ 
+  <FilterTab  />
   <GridCard v-if="restaurants">
     <Card
       v-for="item in restaurants"

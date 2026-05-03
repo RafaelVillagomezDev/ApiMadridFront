@@ -3,7 +3,7 @@ import { computed } from 'vue';
 import { useFavouritesStore } from '@/stores/favourites';
 import type { Restaurant } from '@/types/restaurant-type';
 import { HeartPlus } from 'lucide-vue-next';
-import { RouterLink } from 'vue-router';
+
 interface Props {
   restaurant: Restaurant | undefined;
 }

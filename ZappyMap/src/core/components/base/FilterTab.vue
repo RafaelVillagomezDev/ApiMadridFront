@@ -1,10 +1,16 @@
-<script setup lang="ts">
+<script setup lang="ts"  generic="T extends { id: string  }">
 import { ref } from "vue";
 import { Circle, Option, Star } from "lucide-vue-next";
 
 import { Utensils, CircleChevronDown, CircleChevronUp } from "lucide-vue-next";
 import OptionsTab from "./OptionsTab.vue";
 const isActive = ref(false);
+
+const props = defineProps<{
+  data: T;
+}>();
+
+
 </script>
 
 <template>
@@ -35,7 +41,7 @@ const isActive = ref(false);
 
         <OptionsTab
           v-if="isActive"
-          :data="[{ id: '1', name: 'Tipo de comida', key: 1, value: 'lo' }]"
+          :data="props.data"
           :is-open="isActive"
           class="absolute top-full left-0 mt-2 z-[60] min-w-[220px] bg-white shadow-2xl rounded-xl border border-gray-100"
         />
