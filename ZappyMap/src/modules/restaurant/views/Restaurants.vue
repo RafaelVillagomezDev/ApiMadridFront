@@ -5,9 +5,10 @@ import FilterTab from "@/core/components/base/FilterTab.vue";
 import GridCard from "@/core/components/base/GridCard.vue";
 import { useFavouritesStore } from "@/stores/favourites";
 import { useRestaurantStore } from "@/stores/restaurant";
+import type { OptionTabProps } from "@/types/options-type";
 import type { Restaurant } from "@/types/restaurant-type";
 import { storeToRefs } from "pinia";
-import { computed } from "vue";
+import { computed, ref } from "vue";
 const storeRestaurant = useRestaurantStore();
 const { restaurants } = storeToRefs(storeRestaurant);
 
@@ -21,6 +22,12 @@ const bannerData = computed(() => ({
 const props = defineProps<Restaurant>();
 const store = useFavouritesStore();
 
+const categorias: OptionTabProps[] = [
+  { id: '1', name:"española" , value:"española" },
+  { id: '2', name:"italiana" , value:"italiana" },
+  { id: '3', name:"mexicana" , value:"mexicana" },
+  { id: '4', name:"japonesa" , value:"japonesa" },
+]
 
 
 const handleToggleFavourite = (item: Restaurant | undefined) => {
@@ -32,6 +39,14 @@ const isFav = (item: Restaurant | undefined) => {
   if (!item) return false;
   return store.isFavourite(item.id);
 };
+
+const filtrosActivos = ref<any[]>([]);
+
+const manejarCambioDeFiltros = (valores: any[]) => {
+  filtrosActivos.value = valores;
+  console.log("Dato recibido en el Abuelo:", valores);
+};
+
 </script>
 
 <template>
@@ -39,7 +54,7 @@ const isFav = (item: Restaurant | undefined) => {
     <Banner :content="bannerData" />
   </section>
  
-  <FilterTab  />
+  <FilterTab :isOpen="true" :data="categorias" @update:selection="manejarCambioDeFiltros" />
   <GridCard v-if="restaurants">
     <Card
       v-for="item in restaurants"

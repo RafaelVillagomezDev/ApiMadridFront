@@ -1,16 +1,28 @@
-<script setup lang="ts"  generic="T extends { id: string  }">
-import { ref } from "vue";
-import { Circle, Option, Star } from "lucide-vue-next";
-
+<script setup lang="ts" >
+import { ref , watch} from "vue";
+import { Star } from "lucide-vue-next";
 import { Utensils, CircleChevronDown, CircleChevronUp } from "lucide-vue-next";
 import OptionsTab from "./OptionsTab.vue";
+import type { OptionTabProps } from "@/types/options-type";
 const isActive = ref(false);
 
 const props = defineProps<{
-  data: T;
+  data: OptionTabProps[];
 }>();
 
+const seleccion = ref([]);
 
+const limpiarFiltros = () => {
+  seleccion.value = [];
+};
+
+
+// 1. Definimos el emit para el "Abuelo"
+const emit = defineEmits(['update:selection']);
+
+watch(seleccion, (nuevoValor) => {
+  emit('update:selection', nuevoValor);
+}, { deep: true });
 </script>
 
 <template>
@@ -42,11 +54,13 @@ const props = defineProps<{
         <OptionsTab
           v-if="isActive"
           :data="props.data"
+          v-model="seleccion"
           :is-open="isActive"
           class="absolute top-full left-0 mt-2 z-[60] min-w-[220px] bg-white shadow-2xl rounded-xl border border-gray-100"
         />
       </div>
       <button
+        @click="limpiarFiltros"
         class="px-4 py-2 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-full text-sm font-medium hover:bg-emerald-100 transition-colors"
       >
         Borrar

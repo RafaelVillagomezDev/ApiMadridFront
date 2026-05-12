@@ -1,6 +1,6 @@
 export interface OptionTab {
 
-    data:OptionTabProps;
+    data:OptionTabProps[];
     isOpen: boolean;
 }
 
