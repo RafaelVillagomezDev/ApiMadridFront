@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { useFavouritesStore } from '@/stores/favourites';
 import logo from '@core/assets/icons/logo.svg';
-import { Menu, Heart } from 'lucide-vue-next';
+import { Menu, Heart, Link } from 'lucide-vue-next';
 import { storeToRefs } from 'pinia';
+import { RouterLink } from 'vue-router';
 
 
 defineProps<{
@@ -22,8 +23,10 @@ const emit = defineEmits<{
 <template>
     <nav class="flex flex-row h-16 justify-between items-center px-6 bg-white border-b border-slate-200/50">
         <div class="flex flex-row gap-2 items-center">
-            <img :src="logo" class="w-10 h-10 object-contain" alt="Logo" />
-            <h1 class="text-xl font-bold text-slate-900">ZappyMap</h1>
+            <RouterLink to="/" class="flex items-center gap-2">
+                <img :src="logo" class="w-10 h-10 object-contain" alt="Logo" />
+                <h1 class="text-xl font-bold text-slate-900">ZappyMap</h1>
+            </RouterLink>
         </div>
 
         <div class="flex items-center gap-2.5">

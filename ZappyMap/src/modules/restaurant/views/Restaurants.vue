@@ -5,7 +5,8 @@ import FilterTab from "@/core/components/base/FilterTab.vue";
 import GridCard from "@/core/components/base/GridCard.vue";
 import { useFavouritesStore } from "@/stores/favourites";
 import { useRestaurantStore } from "@/stores/restaurant";
-import type { OptionTabProps } from "@/types/options-type";
+import type { OptionTab } from "@/types/options-type";
+
 import type { Restaurant } from "@/types/restaurant-type";
 import { storeToRefs } from "pinia";
 import { computed, ref } from "vue";
@@ -19,30 +20,54 @@ const bannerData = computed(() => ({
   subtitle: "¡Explora y encuentra tu próximo lugar favorito para comer!",
 }));
 
-const props = defineProps<Restaurant>();
+
 const store = useFavouritesStore();
 
-const categorias: OptionTabProps[] = [
-  { id: '1', name:"española" , value:"española" },
-  { id: '2', name:"italiana" , value:"italiana" },
-  { id: '3', name:"mexicana" , value:"mexicana" },
-  { id: '4', name:"japonesa" , value:"japonesa" },
-]
+const categorias: OptionTab[] = [
+  {
+    isOpen: false,
+    data: [
+      {
+        categoria: "Tipo de comida",
+        opciones: [
+          { id: 1, name: "Italiana", value: "italiana" },
+          { id: 2, name: "China", value: "china" },
+          { id: 3, name: "Mexicana", value: "mexicana" },
+          { id: 4, name: "Japonesa", value: "japonesa" },
+          { id: 5, name: "India", value: "india" },
+          { id: 6, name: "Mediterránea", value: "mediterranea" },
+        ]
+      }
+    ]
+  },
+  {
+    isOpen: false,
+    data: [
+      {
+        categoria: "Precio",
+        opciones: [
+          { id: 1, name: "Bajo", value: "bajo" },
+          { id: 2, name: "Medio", value: "medio" },
+          { id: 3, name: "Alto", value: "alto" },
+        ]
+      }
+    ]
+  }
+];
 
-
-const handleToggleFavourite = (item: Restaurant | undefined) => {
+function handleToggleFavourite(item: Restaurant | undefined) {
   if (!item) return;
   store.toggleFavourite(item);
-};
+}
 
 const isFav = (item: Restaurant | undefined) => {
   if (!item) return false;
   return store.isFavourite(item.id);
 };
 
-const filtrosActivos = ref<any[]>([]);
+const filtrosActivos = ref<{ food: any[]; price: any[] }>({ food: [], price: [] });
 
-const manejarCambioDeFiltros = (valores: any[]) => {
+const manejarCambioDeFiltros = (valores: { food: any[]; price: any[] }) => {
   filtrosActivos.value = valores;
   console.log("Dato recibido en el Abuelo:", valores);
 };
@@ -53,21 +78,15 @@ const manejarCambioDeFiltros = (valores: any[]) => {
   <section class="p-4 flex md:justify-center md:items-center">
     <Banner :content="bannerData" />
   </section>
- 
+
   <FilterTab :isOpen="true" :data="categorias" @update:selection="manejarCambioDeFiltros" />
   <GridCard v-if="restaurants">
-    <Card
-      v-for="item in restaurants"
-      :key="item.id"
-      :content="{
-        imageSm: item.images[0]?.url,
-        imageMd: item.images[0]?.url,
-        titleAlt: item.name,
-        id: item.id,
-      }"
-      :toggleFavourite="() => handleToggleFavourite(item)"
-      :isFavourite="isFav(item)"
-    >
+    <Card v-for="item in restaurants" :key="item.id" :content="{
+      imageSm: item.images[0]?.url,
+      imageMd: item.images[0]?.url,
+      titleAlt: item.name,
+      id: item.id,
+    }" :toggleFavourite="() => handleToggleFavourite(item)" :isFavourite="isFav(item)">
       <template #cardText>
         <div class="px-4 py-6">
           <span class="p-2 bg-gray-700 rounded-2xl text-ghost text-xs">{{
