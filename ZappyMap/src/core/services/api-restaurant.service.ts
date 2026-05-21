@@ -7,32 +7,54 @@ const API_ENDPOINTS = {
 
 export const RestaurantService = {
 
-  getRestaurant: (token: string | null, filters: FiltersRestaurant={} ) => {
-   const params = new URLSearchParams();
+  getRestaurant: (
+    token: string | null,
+    filters: FiltersRestaurant={}
+  ) => {
 
-    // Ahora Object.entries no fallará aunque no envíes filtros
+    const params = new URLSearchParams();
+
     Object.entries(filters).forEach(([key, value]) => {
 
-      if (value !== undefined && value !== null && value !== '') {
-        params.append(key, String(value));
+      if (value === undefined || value === null || value === '') {
+        return;
       }
+
+      if (Array.isArray(value)) {
+
+        value.forEach((item) => {
+
+          if (item !== undefined && item !== null && item !== '') {
+            params.append(key, String(item));
+          }
+
+        });
+
+        return;
+      }
+
+      params.append(key, String(value));
+
     });
 
     const queryString = params.toString();
-    const finalUrl = queryString 
-      ? `${API_ENDPOINTS.RESTAURANT}?${queryString}` 
+
+    const finalUrl = queryString
+      ? `${API_ENDPOINTS.RESTAURANT}?${queryString}`
       : API_ENDPOINTS.RESTAURANT;
+
     return {
       url: finalUrl,
       options: {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          // Aplicamos el Bearer solo si existe el token
-          ...(token ? { "Authorization": `Bearer ${token}` } : {})
+          ...(token
+            ? { Authorization: `Bearer ${token}` }
+            : {})
         }
       }
-    }
+    };
 
   }
 };

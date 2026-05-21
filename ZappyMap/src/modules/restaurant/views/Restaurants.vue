@@ -35,7 +35,7 @@ const categorias: OptionTab[] = [
           { id: 3, name: "Mexicana", value: "mexicana" },
           { id: 4, name: "Japonesa", value: "japonesa" },
           { id: 5, name: "India", value: "india" },
-          { id: 6, name: "Mediterránea", value: "mediterranea" },
+          { id: 6, name: "Española", value: "española" },
           { id: 7, name: "Turca", value: "turca" },
         ]
       }
@@ -66,18 +66,18 @@ const isFav = (item: Restaurant | undefined) => {
   return store.isFavourite(item.id);
 };
 
-const filtrosActivos = ref<{ type_food: any[]; price: any[] }>({ type_food: [], price: [] });
+const filtrosActivos = ref<{ type_food: string[]; price: any[] }>({ type_food: [], price: [] });
 
 
 
 
 
-const fetchDataRestaurantByFilter = async (valores: { type_food: any[]; price: any[] }) => {
+const fetchDataRestaurantByFilter = async (valores: { type_food: string[]; price: any[] }) => {
 
   filtrosActivos.value = valores;
-  const [firstFoodType] = valores.type_food ?? [];
   
-  await storeRestaurant.searchRestarutantByFilter("type_food", firstFoodType);
+  
+  await storeRestaurant.searchRestarutantByFilter("type_food", valores.type_food);
 
 };
 

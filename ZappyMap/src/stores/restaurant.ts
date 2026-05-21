@@ -88,20 +88,33 @@ export const useRestaurantStore = defineStore('restaurant', () => {
 
   }
 
-  const searchRestarutantByFilter= async (filter: string, value: string) => {
+  const searchRestarutantByFilter = async (
+    filter: string,
+    values: string[]
+  ) => {
+
     const token = await authStore.getToken();
 
     if (!token) {
       throw new Error("No se pudo recuperar un token válido.");
     }
-    const { url, options } = RestaurantService.getRestaurant(token, { [filter]: value });
+
+    const filterObject = {
+      [filter]: values
+    };
+
+    const { url, options } = RestaurantService.getRestaurant(
+      token,
+      filterObject
+    );
 
     await executeFetch(url, options);
 
     if (restaurantResponse.value?.data) {
       restaurants.value = restaurantResponse.value.data;
     }
-  }
+
+  };
 
   /**
    * ACCIÓN: Buscar un restaurante por ID
