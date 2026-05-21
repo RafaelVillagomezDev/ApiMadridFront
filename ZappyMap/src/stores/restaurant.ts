@@ -88,6 +88,21 @@ export const useRestaurantStore = defineStore('restaurant', () => {
 
   }
 
+  const searchRestarutantByFilter= async (filter: string, value: string) => {
+    const token = await authStore.getToken();
+
+    if (!token) {
+      throw new Error("No se pudo recuperar un token válido.");
+    }
+    const { url, options } = RestaurantService.getRestaurant(token, { [filter]: value });
+
+    await executeFetch(url, options);
+
+    if (restaurantResponse.value?.data) {
+      restaurants.value = restaurantResponse.value.data;
+    }
+  }
+
   /**
    * ACCIÓN: Buscar un restaurante por ID
    */
@@ -106,6 +121,7 @@ export const useRestaurantStore = defineStore('restaurant', () => {
     getRestaurant,
     getRestaurantById,
     searchRestaurant,
+    searchRestarutantByFilter
   };
 }, {
   persist: {

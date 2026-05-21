@@ -22,12 +22,12 @@ const limpiarFiltros = () => {
 
 // 1. Definimos el emit para el "Abuelo"
 const emit = defineEmits<{
-  (e: 'update:selection', value: { food: any[]; price: any[] }): void;
+  (e: 'update:selection', value: { type_food: any[]; price: any[] }): void;
 }>();
 
 watch([seleccion, seleccionPrice], ([nuevaComida, nuevoPrecio]) => {
   emit('update:selection', {
-    food: nuevaComida,
+    type_food: nuevaComida,
     price: nuevoPrecio
   });
 }, { deep: true });

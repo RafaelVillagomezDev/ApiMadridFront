@@ -9,7 +9,7 @@ import type { OptionTab } from "@/types/options-type";
 
 import type { Restaurant } from "@/types/restaurant-type";
 import { storeToRefs } from "pinia";
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 const storeRestaurant = useRestaurantStore();
 const { restaurants } = storeToRefs(storeRestaurant);
 
@@ -36,6 +36,7 @@ const categorias: OptionTab[] = [
           { id: 4, name: "Japonesa", value: "japonesa" },
           { id: 5, name: "India", value: "india" },
           { id: 6, name: "Mediterránea", value: "mediterranea" },
+          { id: 7, name: "Turca", value: "turca" },
         ]
       }
     ]
@@ -65,12 +66,24 @@ const isFav = (item: Restaurant | undefined) => {
   return store.isFavourite(item.id);
 };
 
-const filtrosActivos = ref<{ food: any[]; price: any[] }>({ food: [], price: [] });
+const filtrosActivos = ref<{ type_food: any[]; price: any[] }>({ type_food: [], price: [] });
 
-const manejarCambioDeFiltros = (valores: { food: any[]; price: any[] }) => {
+
+
+
+
+const fetchDataRestaurantByFilter = async (valores: { type_food: any[]; price: any[] }) => {
+
   filtrosActivos.value = valores;
-  console.log("Dato recibido en el Abuelo:", valores);
+  const [firstFoodType] = valores.type_food ?? [];
+  
+  await storeRestaurant.searchRestarutantByFilter("type_food", firstFoodType);
+
 };
+
+onMounted(() => {
+  fetchDataRestaurantByFilter(filtrosActivos.value);
+});
 
 </script>
 
@@ -79,7 +92,7 @@ const manejarCambioDeFiltros = (valores: { food: any[]; price: any[] }) => {
     <Banner :content="bannerData" />
   </section>
 
-  <FilterTab :isOpen="true" :data="categorias" @update:selection="manejarCambioDeFiltros" />
+  <FilterTab :isOpen="true" :data="categorias" @update:selection="fetchDataRestaurantByFilter" />
   <GridCard v-if="restaurants">
     <Card v-for="item in restaurants" :key="item.id" :content="{
       imageSm: item.images[0]?.url,
