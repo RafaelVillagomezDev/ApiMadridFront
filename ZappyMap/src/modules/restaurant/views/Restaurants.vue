@@ -5,13 +5,13 @@ import FilterTab from "@/core/components/base/FilterTab.vue";
 import GridCard from "@/core/components/base/GridCard.vue";
 import { useFavouritesStore } from "@/stores/favourites";
 import { useRestaurantStore } from "@/stores/restaurant";
-import type { OptionTab } from "@/types/options-type";
+import type { OptionTab, OptionTabPropsData } from "@/types/options-type";
 
 import type { Restaurant } from "@/types/restaurant-type";
 import { storeToRefs } from "pinia";
-import { computed, onMounted, ref } from "vue";
+import { computed, ref } from "vue";
 const storeRestaurant = useRestaurantStore();
-const { restaurants } = storeToRefs(storeRestaurant);
+const { restaurants , filteredRestaurants } = storeToRefs(storeRestaurant);
 
 const bannerData = computed(() => ({
   titleStart: "Tenemos",
@@ -21,7 +21,7 @@ const bannerData = computed(() => ({
 }));
 
 
-const store = useFavouritesStore();
+const storeFavourites = useFavouritesStore();
 
 const categorias: OptionTab[] = [
   {
@@ -58,32 +58,31 @@ const categorias: OptionTab[] = [
 
 function handleToggleFavourite(item: Restaurant | undefined) {
   if (!item) return;
-  store.toggleFavourite(item);
+  storeFavourites.toggleFavourite(item);
 }
 
 const isFav = (item: Restaurant | undefined) => {
   if (!item) return false;
-  return store.isFavourite(item.id);
+  return storeFavourites.isFavourite(item.id);
 };
 
-const filtrosActivos = ref<{ type_food: string[]; price: any[] }>({ type_food: [], price: [] });
+
+type CriteriosFiltroInput = Record<string, OptionTabPropsData[]>;
+const filtrosActivos = ref<CriteriosFiltroInput>({ type_food: [], price: [] });
 
 
 
 
 
-const fetchDataRestaurantByFilter = async (valores: { type_food: string[]; price: any[] }) => {
+const fetchDataRestaurantByFilter = async (valores: CriteriosFiltroInput) => {
 
   filtrosActivos.value = valores;
+  storeRestaurant.setCriteriaFilters(valores);
   
-  
-  await storeRestaurant.searchRestarutantByFilter("type_food", valores.type_food);
 
 };
 
-onMounted(() => {
-  fetchDataRestaurantByFilter(filtrosActivos.value);
-});
+
 
 </script>
 
@@ -93,8 +92,8 @@ onMounted(() => {
   </section>
 
   <FilterTab :isOpen="true" :data="categorias" @update:selection="fetchDataRestaurantByFilter" />
-  <GridCard v-if="restaurants">
-    <Card v-for="item in restaurants" :key="item.id" :content="{
+  <GridCard v-if="filteredRestaurants">
+    <Card v-for="item in filteredRestaurants" :key="item.id" :content="{
       imageSm: item.images[0]?.url,
       imageMd: item.images[0]?.url,
       titleAlt: item.name,
