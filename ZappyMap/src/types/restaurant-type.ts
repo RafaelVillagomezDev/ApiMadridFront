@@ -29,6 +29,11 @@ interface Menus{
   dishes:Dishes[]
   
 }
+interface PaymentMethod {
+  id: string;
+  name: string;
+  icon_url: string;
+}
 
 export interface Restaurant {
   address: string;
@@ -42,5 +47,6 @@ export interface Restaurant {
   web: string;
   images:Images[];
   menus:Menus[];
+  payment_methods:PaymentMethod[];
 }
 

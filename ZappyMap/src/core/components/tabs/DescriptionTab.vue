@@ -130,46 +130,46 @@ const iconClass = "w-4 h-4 md:w-5 md:h-5 flex-shrink-0 text-emerald-500";
         </section>
         <section class="pt-2">
             <h2 class="font-bold text-xl text-gray-800 border-b border-gray-100 pb-3 mb-5">Métodos de pago</h2>
-            <dl class="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-6">
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-6">
+
                 <div class="flex items-start gap-x-3">
-                    <dt :class="iconClass" aria-hidden="true">
+                    <div :class="iconClass" aria-hidden="true">
                         <CreditCard class="w-full h-full" />
-                    </dt>
-                    <dd class="min-w-0 flex-1">
+                    </div>
+                    <div class="min-w-0 flex-1">
                         <span class="block text-xs text-gray-500 uppercase tracking-widest font-bold mb-2">
                             Tarjetas
                         </span>
 
-                        <dl class="flex gap-x-3">
-                            <div class="flex items-center p-1 border border-gray-100 rounded-md bg-white shadow-sm">
-                                <img :src=Visa alt="Visa" class="w-5 md:w-8 h-auto object-contain" />
+                        <div class="flex flex-wrap gap-3">
+                            <div v-for="(method, index) in restaurant?.payment_methods" :key="index"
+                                class="flex items-center p-1 border border-gray-100 rounded-md bg-white shadow-sm">
+                                <img :src="method.icon_url" :alt="method.name"
+                                    class="w-5 md:w-8 h-auto object-contain" />
                             </div>
-
-                            <div class="flex items-center p-1 border border-gray-100 rounded-md bg-white shadow-sm">
-                                <img :src=Mastercard alt="Mastercard" class="w-5 md:w-8 h-auto object-contain" />
-                            </div>
-                            <div class="flex items-center p-1 border border-gray-100 rounded-md bg-white shadow-sm">
-                                <img :src=ApplePay alt="ApplePay" class="w-5 md:w-8 h-auto object-contain" />
-                            </div>
-                        </dl>
-                    </dd>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="flex items-start gap-x-3">
-                    <dt :class="iconClass" aria-hidden="true">
+                    <div :class="iconClass" aria-hidden="true">
                         <Wallet class="w-full h-full" />
-                    </dt>
-                    <dd class="flex-1">
-                        <span class="block text-xs text-gray-400 uppercase tracking-wider font-bold mb-2">Otros métodos de
-                            pago</span>
-                        <dl class="flex gap-x-3">
+                    </div>
+                    <div class="flex-1">
+                        <span class="block text-xs text-gray-400 uppercase tracking-wider font-bold mb-2">
+                            Otros métodos de pago
+                        </span>
+
+                        <div class="flex flex-wrap gap-3">
                             <div class="flex items-center p-1 border border-gray-100 rounded-md bg-white shadow-sm">
-                                <img :src=Cash alt="Cash" class="w-5 md:w-7 h-auto object-contain" />
+                                <img :src="Cash" alt="Cash" class="w-5 md:w-7 h-auto object-contain" />
                             </div>
-                        </dl>
-                    </dd>
+                        </div>
+                    </div>
                 </div>
-            </dl>
+
+            </div>
         </section>
     </div>
 
