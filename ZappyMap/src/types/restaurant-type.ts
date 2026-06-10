@@ -44,6 +44,7 @@ export interface Restaurant {
   name: string;
   phone: string;
   type_food: string;
+  price: 'bajo' | 'medio' | 'alto';
   web: string;
   images:Images[];
   menus:Menus[];

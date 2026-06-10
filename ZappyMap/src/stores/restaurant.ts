@@ -93,6 +93,7 @@ export const useRestaurantStore = defineStore('restaurant', () => {
 
 
   const filteredRestaurants = computed<Restaurant[]>(() => {
+   
     const listaOriginal = restaurants.value;
     const criteria = activeTabsCriteria.value as FilterCriteria;
     debugger;
@@ -123,17 +124,17 @@ export const useRestaurantStore = defineStore('restaurant', () => {
         // Si el filtro de la categoría es un Array (Selección múltiple -> REGLA OR)
         if (Array.isArray(valuesFilter)) {
           return valuesFilter.some((opcion) => {
-           
+
             const valorFiltro = opcion && typeof opcion === 'object'
-              ? (opcion.id ?? opcion.value)
+              ? (opcion.value ?? opcion.id)
               : opcion;
 
-  
+
             if (Array.isArray(valorRestaurante)) {
               return valorRestaurante.includes(valorFiltro);
             }
 
-        
+
             return valorRestaurante === valorFiltro;
           });
         }

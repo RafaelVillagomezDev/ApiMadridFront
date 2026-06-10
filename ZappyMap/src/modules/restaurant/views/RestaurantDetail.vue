@@ -3,10 +3,11 @@ import GridImages from '@/core/components/base/GridImages.vue';
 import { useRestaurantStore } from '@/stores/restaurant';
 import { computed } from 'vue';
 import NavTab from '@/core/components/base/NavTab.vue';
+
+
 const props = defineProps<{ id: string }>();
 const storeRestaurant = useRestaurantStore();
 const restaurant = computed(() => storeRestaurant.getRestaurantById(props.id));
-
 
 
 </script>

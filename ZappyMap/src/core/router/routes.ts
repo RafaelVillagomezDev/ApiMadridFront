@@ -1,4 +1,5 @@
 import restaurantRoutes from '@/modules/restaurant/router/routes-restaurant'
+import registerRoutes from '@/modules/app/router/routes-general'
 import { createRouter, createWebHistory } from 'vue-router'
 
 
@@ -14,13 +15,14 @@ const router = createRouter({
       path: '/home',
       redirect: '/'
     },
+    restaurantRoutes,
+    registerRoutes,
     {
-      path: '/restaurant/:id', 
-      name: 'restaurant-detail',
-      component: () => import('@modules/restaurant/views/RestaurantDetail.vue'),
-      props: true 
-    },
-    restaurantRoutes
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      component: () => import('@modules/app/views/NotFound.vue'),
+      props: true
+    }
   ]
 })
 

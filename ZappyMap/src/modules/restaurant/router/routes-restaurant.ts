@@ -13,7 +13,6 @@ const restaurantRoutes = {
             component: () => import('@modules/restaurant/views/RestaurantDetail.vue'),
             props: true
         },
-        
     ]
 }
 export default restaurantRoutes
