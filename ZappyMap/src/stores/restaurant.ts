@@ -89,67 +89,61 @@ export const useRestaurantStore = defineStore('restaurant', () => {
 
   function setCriteriaFilters(criteria: OptionTabProps): void {
     activeTabsCriteria.value = criteria;
+      console.log('📦 criteria en store:', JSON.stringify(criteria, null, 2));
   }
 
 
   const filteredRestaurants = computed<Restaurant[]>(() => {
-   
+    
     const listaOriginal = restaurants.value;
     const criteria = activeTabsCriteria.value as FilterCriteria;
-    debugger;
-    // Si no hay criterios o la lista base está vacía, devolvemos todo rápido
+
     if (!criteria || Object.keys(criteria).length === 0) {
       return listaOriginal;
     }
 
     return listaOriginal.filter((restaurante) => {
-
-      // REGLA AND: El restaurante debe pasar TODOS los bloques de filtros activos
       return Object.keys(criteria).every((key) => {
         const valuesFilter = criteria[key];
 
-        // Si el filtro de esta categoría está vacío (ej: array vacío o null), se ignora (pasa el filtro)
         if (!valuesFilter || (Array.isArray(valuesFilter) && valuesFilter.length === 0)) {
           return true;
         }
 
-        // Acceso seguro a la propiedad del restaurante evitando 'any'
+       
         const valorRestaurante = restaurante[key as keyof Restaurant];
 
-        // Si el restaurante no cuenta con esa propiedad, no puede cumplir el filtro
         if (valorRestaurante === undefined || valorRestaurante === null) {
           return false;
         }
 
-        // Si el filtro de la categoría es un Array (Selección múltiple -> REGLA OR)
         if (Array.isArray(valuesFilter)) {
           return valuesFilter.some((opcion) => {
-
             const valorFiltro = opcion && typeof opcion === 'object'
               ? (opcion.value ?? opcion.id)
               : opcion;
 
+         
+            const normalize = (v: unknown) =>
+              String(v).toLowerCase().trim();
 
             if (Array.isArray(valorRestaurante)) {
-              return valorRestaurante.includes(valorFiltro);
+              return valorRestaurante.map(normalize).includes(normalize(valorFiltro));
             }
 
-
-            return valorRestaurante === valorFiltro;
+            return normalize(valorRestaurante) === normalize(valorFiltro);
           });
         }
-
 
         if (Array.isArray(valorRestaurante)) {
           return valorRestaurante.includes(valuesFilter);
         }
 
-        // Comparación simple directa uno a uno
-        return valorRestaurante === valuesFilter;
+        return String(valorRestaurante).toLowerCase().trim() ===
+          String(valuesFilter).toLowerCase().trim(); // ✅ también aquí
       });
     });
   });
-
   return {
     filters,
     restaurants,
