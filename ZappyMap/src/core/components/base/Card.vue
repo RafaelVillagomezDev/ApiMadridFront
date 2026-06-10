@@ -49,9 +49,14 @@
       <div
         class="w-full aspect-video flex items-center justify-center bg-gray-100 border-2 border-dashed border-gray-300 rounded-t-lg">
         <slot name="placeholder">
+
           <div class="flex flex-col items-center text-gray-400">
-            <ImageOff :size="32" />
-            <p class="text-xs mt-1">No hay imagen</p>
+            <router-link :to="`/restaurant/${props.content?.id || ''}`">
+              <div class="flex flex-col items-center">
+                <ImageOff :size="32" />
+                <p class="text-xs mt-1">No hay imagen</p>
+              </div>
+            </router-link>
           </div>
         </slot>
       </div>

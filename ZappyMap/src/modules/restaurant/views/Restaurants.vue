@@ -13,10 +13,15 @@ import { computed, ref } from "vue";
 const storeRestaurant = useRestaurantStore();
 const { restaurants , filteredRestaurants } = storeToRefs(storeRestaurant);
 
+const textQuantity = computed(() => {
+  const count = restaurants.value.length;
+  return count === 1 ? "restaurante" : "restaurantes";
+});
+
 const bannerData = computed(() => ({
   titleStart: "Tenemos",
   titleEnd: "más de ",
-  titleHighlight: `${restaurants.value.length} restaurantes.`,
+  titleHighlight: `${restaurants.value.length} ${textQuantity.value}.`,
   subtitle: "¡Explora y encuentra tu próximo lugar favorito para comer!",
 }));
 
