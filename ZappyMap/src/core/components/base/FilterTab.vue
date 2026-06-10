@@ -26,10 +26,12 @@ const emit = defineEmits<{
 }>();
 
 watch([seleccion, seleccionPrice], ([nuevaComida, nuevoPrecio]) => {
+  
   emit('update:selection', {
     type_food: nuevaComida,
     price: nuevoPrecio
   });
+    
 }, { deep: true });
 
 </script>

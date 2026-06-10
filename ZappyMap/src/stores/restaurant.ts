@@ -25,6 +25,10 @@ export const useRestaurantStore = defineStore('restaurant', () => {
     type_food: ''
   });
 
+  interface FilterCriteria {
+    [key: string]: any[] | any;
+  }
+
   const {
     data: restaurantResponse,
     error: apiError,
@@ -90,33 +94,56 @@ export const useRestaurantStore = defineStore('restaurant', () => {
 
   const filteredRestaurants = computed<Restaurant[]>(() => {
     const listaOriginal = restaurants.value;
-    const criteria = activeTabsCriteria.value;
-
-
+    const criteria = activeTabsCriteria.value as FilterCriteria;
+    debugger;
+    // Si no hay criterios o la lista base está vacía, devolvemos todo rápido
     if (!criteria || Object.keys(criteria).length === 0) {
       return listaOriginal;
     }
 
-    return listaOriginal.filter(restaurante => {
-      return Object.keys(criteria).every(key => {
+    return listaOriginal.filter((restaurante) => {
+
+      // REGLA AND: El restaurante debe pasar TODOS los bloques de filtros activos
+      return Object.keys(criteria).every((key) => {
         const valuesFilter = criteria[key];
 
-
+        // Si el filtro de esta categoría está vacío (ej: array vacío o null), se ignora (pasa el filtro)
         if (!valuesFilter || (Array.isArray(valuesFilter) && valuesFilter.length === 0)) {
           return true;
         }
 
-        const valorRestaurante = (restaurante as any)[key];
+        // Acceso seguro a la propiedad del restaurante evitando 'any'
+        const valorRestaurante = restaurante[key as keyof Restaurant];
 
+        // Si el restaurante no cuenta con esa propiedad, no puede cumplir el filtro
+        if (valorRestaurante === undefined || valorRestaurante === null) {
+          return false;
+        }
+
+        // Si el filtro de la categoría es un Array (Selección múltiple -> REGLA OR)
         if (Array.isArray(valuesFilter)) {
-          return valuesFilter.some(opcion => {
-            if (opcion && typeof opcion === 'object') {
-              return opcion.id === valorRestaurante || opcion.value === valorRestaurante;
+          return valuesFilter.some((opcion) => {
+           
+            const valorFiltro = opcion && typeof opcion === 'object'
+              ? (opcion.id ?? opcion.value)
+              : opcion;
+
+  
+            if (Array.isArray(valorRestaurante)) {
+              return valorRestaurante.includes(valorFiltro);
             }
-            return opcion === valorRestaurante;
+
+        
+            return valorRestaurante === valorFiltro;
           });
         }
 
+
+        if (Array.isArray(valorRestaurante)) {
+          return valorRestaurante.includes(valuesFilter);
+        }
+
+        // Comparación simple directa uno a uno
         return valorRestaurante === valuesFilter;
       });
     });
