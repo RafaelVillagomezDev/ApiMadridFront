@@ -8,7 +8,10 @@ const routerCustom = ref([{
 }, {
     linkCustom: '/restaurant',
     linkTitle: 'Restaurantes',
-}])
+}, 
+
+
+])
 
 
 const customClassRouterLink = ref(`
