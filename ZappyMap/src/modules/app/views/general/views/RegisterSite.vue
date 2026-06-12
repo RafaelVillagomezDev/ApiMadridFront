@@ -20,24 +20,64 @@ const formSteps = [
 // Array para defincion de campos del formulario
 const stepOneFields: FormField[] = [
     {
-        name: 'siteName',
+        name: 'name',
         label: 'Nombre del sitio',
         type: 'text',
-        placeholder: 'Ej. Parque Central',
+        placeholder: 'Ej. Restaurante Sevilla ',
         required: true
     },
     {
-        name: 'category',
-        label: 'Categoría',
+        name: 'email',
+        label: 'Correo electrónico',
+        type: 'email',
+        placeholder: 'tu@email.com',
+        required: true
+    },
+    {
+        name: 'phone',
+        label: 'Número de teléfono',
+        type: 'text',
+        placeholder: 'Ej. 61 XXX XXX',
+        required: true
+    },
+    {
+        name: 'address',
+        label: 'Dirección',
+        type: 'text',
+        placeholder: 'Ej. Calle Principal, 123 , Madrid',
+        required: true
+    },
+     {
+        name: 'web',
+        label: 'Sitio web',
+        type: 'text',
+        placeholder: 'Ej. https://www.tusitio.com',
+        required: false
+    },
+    
+    {
+        name: 'type_food',
+        label: 'Tipo de comida',
         type: 'select',
-        placeholder: 'Selecciona una categoría',
+        placeholder: 'Selecciona una opción',
         required: true,
         options: [
-            { label: 'Restaurante', value: 'restaurante' },
-            { label: 'Parque', value: 'parque' },
-            { label: 'Museo', value: 'museo' }
+            { label: 'Italiana', value: 'italiana' },
+            { label: 'China', value: 'china' },
+            { label: 'Mexicana', value: 'mexicana' },
+            { label: 'Japonesa', value: 'japonesa' },
+            { label: 'India', value: 'india' },
+            { label: 'Españoala', value: 'española' },
+            { label: 'Turca', value: 'turca' }
         ]
-    }
+    },
+     {
+        name: 'description',
+        label: 'Descripción',
+        type: 'textarea',
+        placeholder: 'Ej. Restaurante de comida italiana...',
+        required: false
+    },
 ];
 
 // Esta función recibe el objeto con los datos ya ordenados
@@ -49,19 +89,17 @@ const onFormSubmit = (data: Record<string, any>) => {
 
 <template>
     <SplitLayout>
-        
+
         <template #box_left>
-            <img 
-                src="https://images.unsplash.com/photo-1543807535-eceef0bc6599?q=80&w=1000&auto=format&fit=crop" 
-                class="absolute inset-0 w-full h-full object-cover" 
-                alt="Personas disfrutando en un local" 
-            />
-            
+            <img src="https://images.unsplash.com/photo-1543807535-eceef0bc6599?q=80&w=1000&auto=format&fit=crop"
+                class="absolute inset-0 w-full h-full object-cover" alt="Personas disfrutando en un local" />
+
             <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/70 to-slate-900/60"></div>
 
             <div class="relative z-10 flex flex-col gap-8">
-                
-                <span class="inline-flex items-center px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-sm font-medium w-fit border border-blue-400/30">
+
+                <span
+                    class="inline-flex items-center px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-sm font-medium w-fit border border-blue-400/30">
                     Impulsa tu crecimiento local
                 </span>
 
@@ -71,21 +109,24 @@ const onFormSubmit = (data: Record<string, any>) => {
                 </h2>
 
                 <p class="text-xl text-slate-200 max-w-lg leading-relaxed">
-                    ZappyMap es el escaparate digital perfecto para tu proyecto. Al registrar tu establecimiento, te unes a una plataforma diseñada para que:
+                    ZappyMap es el escaparate digital perfecto para tu proyecto. Al registrar tu establecimiento, te
+                    unes a una plataforma diseñada para que:
                 </p>
 
                 <ul class="space-y-4 text-lg text-slate-100">
                     <li class="flex items-center gap-3">
                         <span class="text-blue-400 text-2xl">🚀</span>
-                        <span>Puedas dar <strong>máxima visibilidad a tu negocio</strong> frente a miles de usuarios activos en tu ciudad.</span>
+                        <span>Puedas dar <strong>máxima visibilidad a tu negocio</strong> frente a miles de usuarios
+                            activos en tu ciudad.</span>
                     </li>
                     <li class="flex items-center gap-3">
                         <span class="text-blue-400 text-2xl">📍</span>
-                        <span>Convertir<strong> tu local</strong>  en el nuevo punto de referencia de tu zona.</span>
+                        <span>Convertir<strong> tu local</strong> en el nuevo punto de referencia de tu zona.</span>
                     </li>
                     <li class="flex items-center gap-3">
                         <span class="text-blue-400 text-2xl">🌟</span>
-                        <span><strong>Darte a conocer sin esfuerzo</strong>, atrayendo nuevos clientes poteciales directamente a tu puerta.</span>
+                        <span><strong>Darte a conocer sin esfuerzo</strong>, atrayendo nuevos clientes poteciales
+                            directamente a tu puerta.</span>
                     </li>
                 </ul>
 
@@ -97,24 +138,22 @@ const onFormSubmit = (data: Record<string, any>) => {
 
         <template #box_right>
             <div class="flex flex-col gap-6 mb-8">
-                <div>
-                    <img src="@core/assets/icons/logo.svg" class="w-16 h-16 object-contain" alt="Logo" />
+                <div class="flex items-center gap-2">
+                    <img src="@core/assets/icons/logo.svg" class="w-12 h-16 object-contain" alt="Logo" />
+                    <span class="text-xl font-bold text-slate-900">ZappyMap</span>
                 </div>
                 <div>
                     <h1 class="text-2xl font-bold text-slate-900">Registrar sitio</h1>
-                    <p class="text-slate-600 mt-2">Agrega un nuevo sitio a ZappyMap para compartirlo con la comunidad.</p>
+                    <p class="text-slate-600 mt-2">Agrega un nuevo sitio a ZappyMap para compartirlo con la comunidad.
+                    </p>
                 </div>
             </div>
 
             <div class="mb-10">
                 <Stepper :steps="formSteps" :currentStep="currentStep" />
             </div>
-            
-            <BaseForm 
-                :fields="stepOneFields" 
-                submitText="Siguiente" 
-                @submit="onFormSubmit" 
-            />
+
+            <BaseForm :fields="stepOneFields" submitText="Siguiente" @submit="onFormSubmit" />
         </template>
 
     </SplitLayout>

@@ -2,8 +2,6 @@
 import type { FormField } from '@/types/form-type';
 import { reactive } from 'vue';
 
-
-
 const props = withDefaults(defineProps<{
     fields: FormField[];
     submitText?: string;
@@ -11,19 +9,15 @@ const props = withDefaults(defineProps<{
     submitText: 'Enviar'
 });
 
-
 const emit = defineEmits<{
     (e: 'submit', formData: Record<string, any>): void
 }>();
 
-
 const formData = reactive<Record<string, any>>({});
-
 
 props.fields.forEach(field => {
     formData[field.name] = '';
 });
-
 
 const handleSubmit = () => {
     emit('submit', { ...formData });
@@ -47,9 +41,16 @@ const handleSubmit = () => {
                 </option>
             </select>
 
+            <textarea v-else-if="field.type === 'textarea'" :id="field.name" v-model="formData[field.name]"
+                :placeholder="field.placeholder" 
+                :required="field.required"
+                :rows="field.rows || 4"
+                class="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all resize-y w-full">
+            </textarea>
+
             <input v-else :type="field.type" :id="field.name" v-model="formData[field.name]"
                 :placeholder="field.placeholder" :required="field.required"
-                class="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" />
+                class="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all w-full" />
         </div>
 
         <button type="submit"
