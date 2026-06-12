@@ -15,7 +15,7 @@ const props = withDefaults(defineProps<Props>(), {
 </script>
 
 <template>
-  <div class="p-4 md:p-8">
+  <div class="py-4 md:p-8">
     <div class="max-w-full overflow-hidden">
       <slot name="header"></slot>
       

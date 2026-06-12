@@ -33,12 +33,20 @@ const handleInput = () => {
 </script>
 <template>
   <div class="relative w-full max-w-sm mx-auto">
-    <form @submit.prevent="handleSearch" class="w-full max-w-sm flex row ">
-      <input @input="handleInput" name="search" type="search" placeholder="Encuentra un plan .." v-model="filters.name"
+    <form @submit.prevent="handleSearch" class="w-full max-w-xs flex">
+
+      <input @input="handleInput" name="search_mobile" type="search" placeholder="Busca un plan" v-model="filters.name"
         aria-label="Buscar contenido en el sitio"
-        class="flex-1 py-2 px-4 border-gray-400 border-2 rounded-tl-md rounded-bl-md focus:outline-none focus:ring-0 ">
+        class="md:hidden flex-1 min-w-0 py-2 px-4 border-gray-400 border-2 rounded-l-md focus:outline-none focus:ring-0">
+
+      <input @input="handleInput" name="search_desktop" type="search" placeholder="Encuentra un plan .."
+        v-model="filters.name" aria-label="Buscar contenido en el sitio"
+        class="hidden md:block flex-1 min-w-0 py-2 px-4 border-gray-400 border-2 rounded-l-md focus:outline-none focus:ring-0">
+
       <button type="submit" :disabled="isInvalid"
-        class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2 px-4 rounded-tr-md rounded-br-md cursor-pointer">Buscar</button>
+        class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2 px-4 rounded-r-md cursor-pointer shrink-0">
+        Buscar
+      </button>
     </form>
     <p v-if="isInvalid" class="text-red-500 text-xs mt-1 absolute translate-y-10 bottom-4">
       {{ errorMessage }}

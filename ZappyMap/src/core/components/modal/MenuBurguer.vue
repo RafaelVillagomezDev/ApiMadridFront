@@ -8,7 +8,7 @@ const isOpen = defineModel<boolean>()
 const routerCustom = ref([
     { linkCustom: '/home', linkTitle: 'Inicio', linkIcon: House },
     { linkCustom: '/register', linkTitle: 'Registrar sitio', linkIcon: Store },
-    { linkCustom: '/general', linkTitle: 'Restaurantes', linkIcon: Utensils },
+    { linkCustom: '/restaurant', linkTitle: 'Restaurantes', linkIcon: Utensils },
 ])
 
 const customClassRouterLink = ref("text-slate-900 text-xl flex flex-row items-center gap-2 cursor-pointer");

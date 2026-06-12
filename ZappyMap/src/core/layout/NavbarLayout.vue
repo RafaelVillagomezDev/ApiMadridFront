@@ -30,7 +30,7 @@ const emit = defineEmits<{
         </div>
 
         <div class="flex items-center gap-2.5">
-            <RouterLink to="/general" class="p-2 hover:bg-slate-100  bg-emerald-500 rounded-full transition-colors flex items-center gap-1">
+            <RouterLink to="/general/register" class="hidden md:flex p-2 hover:bg-slate-100  bg-emerald-500 rounded-full transition-colors  items-center gap-1">
                  <span>Registrar sitio</span>
                 <Store :size="20" />
             </RouterLink>

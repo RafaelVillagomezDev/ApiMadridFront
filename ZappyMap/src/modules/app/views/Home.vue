@@ -31,7 +31,7 @@ onMounted(() => {
 
 <template>
   <SeekerLayout />
-  <section class="p-8 flex md:justify-center md:items-center">
+  <section class="p-2 md:p-8 flex md:justify-center md:items-center">
     <Banner :content="bannerData" />
   </section>
   <section v-if="restaurants.length > 0">

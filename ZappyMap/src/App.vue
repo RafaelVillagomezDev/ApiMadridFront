@@ -12,7 +12,7 @@ const isMenuOpen = ref(false);
 const isFavOpen = ref(false);
 
 const isNotFound = computed(() => route.name === 'not-found');
-const mainClass = computed(() => isNotFound.value ? '' : 'grow p-8');
+const mainClass = computed(() => isNotFound.value ? '' : 'grow');
 </script>
 
 <template>

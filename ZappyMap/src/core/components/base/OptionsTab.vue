@@ -33,7 +33,7 @@ const opcionesFiltradas = computed(() => {
 <template>
   <form 
     v-if="isOpen" 
-    class="p-4 bg-white rounded-lg shadow-sm w-64 border border-gray-200"
+    class="p-4 bg-white rounded-lg shadow-sm w-40 md:w-64 border border-gray-200"
     @submit.prevent
   >
     <h3 class="text-xs font-bold text-gray-400 mb-4 uppercase tracking-wider">
