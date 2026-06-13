@@ -39,7 +39,7 @@ const socialLinks = ref<SocialLink[]>([
 </script>
 
 <template>
-    <footer class="relative w-full border-t border-stone-100 mt-10 bg-ghost">
+    <footer class="relative w-full border-t border-stone-100  bg-ghost">
         <div class="mx-auto w-full max-w-7xl px-8">
 
             <div class="mx-auto grid w-full grid-cols-1 gap-8 py-12 md:grid-cols-2 lg:grid-cols-4">

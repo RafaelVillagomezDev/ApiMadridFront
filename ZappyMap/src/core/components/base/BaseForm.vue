@@ -15,9 +15,21 @@ const emit = defineEmits<{
 
 const formData = reactive<Record<string, any>>({});
 
+// Inicializamos los campos
 props.fields.forEach(field => {
-    formData[field.name] = '';
+    formData[field.name] = field.type === 'file' ? null : '';
 });
+
+// Función especial para manejar la subida de archivos
+const handleFileChange = (event: Event, fieldName: string) => {
+    const target = event.target as HTMLInputElement;
+    if (target.files && target.files.length > 0) {
+        // Guardamos el objeto File real en el estado
+        formData[fieldName] = target.files[0];
+    } else {
+        formData[fieldName] = null;
+    }
+};
 
 const handleSubmit = () => {
     emit('submit', { ...formData });
@@ -48,9 +60,19 @@ const handleSubmit = () => {
                 class="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all resize-y w-full">
             </textarea>
 
+            <input v-else-if="field.type === 'file'" 
+                type="file" 
+                :id="field.name" 
+                :required="field.required"
+                :accept="field.accept" 
+                @change="(e) => handleFileChange(e, field.name)"
+                class="block w-full text-sm text-slate-500 border border-slate-300 rounded-lg cursor-pointer bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-l-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-all" 
+            />
+
             <input v-else :type="field.type" :id="field.name" v-model="formData[field.name]"
                 :placeholder="field.placeholder" :required="field.required"
-                class="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all w-full" />
+                class="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all w-full" 
+            />
         </div>
 
         <button type="submit"

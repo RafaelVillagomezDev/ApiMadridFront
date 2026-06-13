@@ -7,7 +7,7 @@ const isOpen = defineModel<boolean>()
 
 const routerCustom = ref([
     { linkCustom: '/home', linkTitle: 'Inicio', linkIcon: House },
-    { linkCustom: '/register', linkTitle: 'Registrar sitio', linkIcon: Store },
+    { linkCustom: '/general/register', linkTitle: 'Registrar sitio', linkIcon: Store },
     { linkCustom: '/restaurant', linkTitle: 'Restaurantes', linkIcon: Utensils },
 ])
 

@@ -6,6 +6,7 @@ import SplitLayout from '@core/layout/SplitLayout.vue';
 import type { FormField } from '@/types/form-type';
 
 
+const formData = ref<Record<string, any>>({});
 
 const currentStep = ref(1);
 
@@ -47,14 +48,14 @@ const stepOneFields: FormField[] = [
         placeholder: 'Ej. Calle Principal, 123 , Madrid',
         required: true
     },
-     {
+    {
         name: 'web',
         label: 'Sitio web',
         type: 'text',
         placeholder: 'Ej. https://www.tusitio.com',
         required: false
     },
-    
+
     {
         name: 'type_food',
         label: 'Tipo de comida',
@@ -71,7 +72,7 @@ const stepOneFields: FormField[] = [
             { label: 'Turca', value: 'turca' }
         ]
     },
-     {
+    {
         name: 'description',
         label: 'Descripción',
         type: 'textarea',
@@ -79,6 +80,32 @@ const stepOneFields: FormField[] = [
         required: false
     },
 ];
+
+const stepTwoFields: FormField[] = [
+    { name: 'address', label: 'Dirección', type: 'text', placeholder: 'Ej. Calle Principal, 123', required: true },
+    { name: 'city', label: 'Ciudad', type: 'text', placeholder: 'Ej. Madrid', required: true },
+    { name: 'zip_code', label: 'Código Postal', type: 'text', placeholder: 'Ej. 28001', required: true }
+];
+
+const processStep = (stepData: Record<string, any>) => {
+    // 1. Guardamos/Combinamos los datos del paso actual con los que ya teníamos
+    formData.value = { ...formData.value, ...stepData };
+
+    // 2. Avanzamos de paso o enviamos
+    if (currentStep.value === 1) {
+        currentStep.value = 2;
+    } else if (currentStep.value === 2) {
+        // Por ahora lo mandamos al paso 3, aunque aún no tengamos los campos
+        currentStep.value = 3;
+        console.log("Datos acumulados hasta el paso 2:", formData.value);
+    }
+};
+
+const prevStep = () => {
+    if (currentStep.value > 1) {
+        currentStep.value--;
+    }
+};
 
 // Esta función recibe el objeto con los datos ya ordenados
 const onFormSubmit = (data: Record<string, any>) => {
@@ -138,7 +165,7 @@ const onFormSubmit = (data: Record<string, any>) => {
 
         <template #box_right>
             <div class="flex flex-col gap-6 mb-8">
-                <div class="flex items-center gap-2">
+                <div class="hidden sm:flex items-center gap-2">
                     <img src="@core/assets/icons/logo.svg" class="w-12 h-16 object-contain" alt="Logo" />
                     <span class="text-xl font-bold text-slate-900">ZappyMap</span>
                 </div>
@@ -153,7 +180,18 @@ const onFormSubmit = (data: Record<string, any>) => {
                 <Stepper :steps="formSteps" :currentStep="currentStep" />
             </div>
 
-            <BaseForm :fields="stepOneFields" submitText="Siguiente" @submit="onFormSubmit" />
+            <div class="relative">
+                <BaseForm v-if="currentStep === 1" :fields="stepOneFields" submitText="Continuar a Ubicación"
+                    @submit="processStep" />
+
+                <BaseForm v-else-if="currentStep === 2" :fields="stepTwoFields" submitText="Continuar a Fotos"
+                    @submit="processStep" />
+
+                <button v-if="currentStep > 1" @click="prevStep"
+                    class="mt-4 text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors w-full text-center">
+                    Volver al paso anterior
+                </button>
+            </div>
         </template>
 
     </SplitLayout>
