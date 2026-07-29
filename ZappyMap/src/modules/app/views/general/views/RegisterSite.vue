@@ -4,6 +4,8 @@ import Stepper from '@core/components/base/Stepper.vue';
 import BaseForm from '@core/components/base/BaseForm.vue';
 import SplitLayout from '@core/layout/SplitLayout.vue';
 import type { FormField } from '@/types/form-type';
+import { useRestaurantStore } from '@/stores/restaurant';
+import { storeToRefs } from 'pinia';
 
 
 const formData = ref<Record<string, any>>({});
@@ -15,6 +17,9 @@ const formSteps = [
     { id: 2, name: 'Ubicación' },
     { id: 3, name: 'Fotos' }
 ];
+
+const storeRestaurant = useRestaurantStore();
+
 
 
 
@@ -88,10 +93,10 @@ const stepTwoFields: FormField[] = [
 ];
 
 const processStep = (stepData: Record<string, any>) => {
-    // 1. Guardamos/Combinamos los datos del paso actual con los que ya teníamos
+    // Guardamos/Combinamos los datos del paso actual con los que ya teníamos
     formData.value = { ...formData.value, ...stepData };
 
-    // 2. Avanzamos de paso o enviamos
+    // Avanzamos de paso o enviamos
     if (currentStep.value === 1) {
         currentStep.value = 2;
     } else if (currentStep.value === 2) {
@@ -108,7 +113,9 @@ const prevStep = () => {
 };
 
 // Esta función recibe el objeto con los datos ya ordenados
-const onFormSubmit = (data: Record<string, any>) => {
+const onFormSubmit = async (data: Record<string, any>) => {
+
+    await storeRestaurant.createRestaurant(data);
     console.log("Datos listos para enviar al backend o guardar en store:", data);
     // Aquí puedes llamar a tu API o pasar al siguiente paso
 };

@@ -2,6 +2,7 @@ import type { FiltersRestaurant } from "@/types/router-types";
 
 const API_ENDPOINTS = {
   RESTAURANT: "http://localhost:3000/api/v1/restaurant/",
+
 };
 
 
@@ -56,6 +57,21 @@ export const RestaurantService = {
       }
     };
 
+  },
+  createRestaurant: (token: string | null, restaurantData: any) => {
+    return {
+      url: `${API_ENDPOINTS.RESTAURANT+"create"}`,
+      options: {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token
+            ? { Authorization: `Bearer ${token}` }
+            : {})
+        },
+        body: JSON.stringify(restaurantData)
+      }
+    };
   }
 };
 

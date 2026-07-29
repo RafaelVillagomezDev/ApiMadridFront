@@ -144,6 +144,18 @@ export const useRestaurantStore = defineStore('restaurant', () => {
       });
     });
   });
+
+  const createRestaurant = async (restaurantData: Partial<Restaurant>) => {
+    const token = await authStore.getToken();
+    if (!token) throw new Error("No se pudo recuperar un token válido.");
+
+    const { url, options } = RestaurantService.createRestaurant(token, restaurantData);
+    await executeFetch(url, options);
+
+    if (restaurantResponse.value?.data) {
+      restaurants.value.push(restaurantResponse.value.data);
+    }
+  }
   return {
     filters,
     restaurants,
@@ -155,7 +167,8 @@ export const useRestaurantStore = defineStore('restaurant', () => {
     getRestaurantById,
     searchRestaurant,
     searchRestarutantByFilter,
-    setCriteriaFilters
+    setCriteriaFilters,
+    createRestaurant
   };
 }, {
   persist: {
