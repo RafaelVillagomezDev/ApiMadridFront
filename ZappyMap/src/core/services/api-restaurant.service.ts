@@ -69,7 +69,8 @@ export const RestaurantService = {
             ? { Authorization: `Bearer ${token}` }
             : {})
         },
-        body: JSON.stringify(restaurantData)
+        body: restaurantData
+        
       }
     };
   }

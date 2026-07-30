@@ -92,17 +92,26 @@ const stepTwoFields: FormField[] = [
     { name: 'zip_code', label: 'Código Postal', type: 'text', placeholder: 'Ej. 28001', required: true }
 ];
 
+const stepThreeFields: FormField[] = [
+    { name: 'image', label: 'Imagen del sitio', type: 'file', placeholder: '', required: false }
+];
+
 const processStep = (stepData: Record<string, any>) => {
     // Guardamos/Combinamos los datos del paso actual con los que ya teníamos
     formData.value = { ...formData.value, ...stepData };
-
+    const data = formData.value;
     // Avanzamos de paso o enviamos
     if (currentStep.value === 1) {
         currentStep.value = 2;
     } else if (currentStep.value === 2) {
         // Por ahora lo mandamos al paso 3, aunque aún no tengamos los campos
         currentStep.value = 3;
-        console.log("Datos acumulados hasta el paso 2:", formData.value);
+        console.log("Datos acumulados hasta el paso 2:", data);
+    } else {
+        // Aquí podrías enviar los datos al backend o hacer cualquier otra acción final
+        console.log("Formulario completo:", data);
+        const { image, ...dataRestaurant } = data;
+        onFormSubmit(dataRestaurant); 
     }
 };
 
@@ -115,9 +124,14 @@ const prevStep = () => {
 // Esta función recibe el objeto con los datos ya ordenados
 const onFormSubmit = async (data: Record<string, any>) => {
 
-    await storeRestaurant.createRestaurant(data);
-    console.log("Datos listos para enviar al backend o guardar en store:", data);
-    // Aquí puedes llamar a tu API o pasar al siguiente paso
+    try {
+      
+        await storeRestaurant.createRestaurant(data);
+        console.log("Datos listos para enviar al backend o guardar en store:", data);
+    } catch (error) {
+        console.error("Error al enviar los datos al backend:", error);
+    }
+
 };
 </script>
 
@@ -191,7 +205,10 @@ const onFormSubmit = async (data: Record<string, any>) => {
                 <BaseForm v-if="currentStep === 1" :fields="stepOneFields" submitText="Continuar a Ubicación"
                     @submit="processStep" />
 
-                <BaseForm v-else-if="currentStep === 2" :fields="stepTwoFields" submitText="Continuar a Fotos"
+                <BaseForm v-else-if="currentStep === 2" :fields="stepTwoFields" submitText="Subir imagenes"
+                    @submit="processStep" />
+
+                <BaseForm v-else-if="currentStep === 3" :fields="stepThreeFields" submitText="Registrar sitio"
                     @submit="processStep" />
 
                 <button v-if="currentStep > 1" @click="prevStep"

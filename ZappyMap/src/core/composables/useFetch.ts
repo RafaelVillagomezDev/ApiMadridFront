@@ -1,5 +1,4 @@
 import { readonly, ref, toValue, type MaybeRefOrGetter, type Ref } from 'vue';
-
 type ErrorType = 'NOT_FOUND' | 'SERVER_ERROR' | 'NETWORK_ERROR' | 'UNKNOWN';
 
 interface AppError {
@@ -61,10 +60,12 @@ export function useFetch<T = any>(
                     ...currentOptions.headers,
                 },
                 signal: controller.signal,
-                // CORRECCIÓN: Lógica de body más limpia
+                
                 body: !isGetOrHead && currentOptions.body 
-                    ? JSON.stringify(currentOptions.body) 
-                    : null
+                ? (typeof currentOptions.body === 'string' 
+                    ? currentOptions.body 
+                    : JSON.stringify(currentOptions.body)) 
+                : null
             };
 
             const response = await fetch(currentUrl, fetchConfig);

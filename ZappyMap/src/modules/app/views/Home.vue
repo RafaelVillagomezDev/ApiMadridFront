@@ -21,7 +21,12 @@ const bannerData = {
 };
 
 const fetchData = async () => {
-  await storeRestaurant.getRestaurant();
+  try {
+    await storeRestaurant.getRestaurant();
+  } catch (error) {
+    console.error("Error al obtener los restaurantes:", error);
+  }
+  
 };
 
 onMounted(() => {

@@ -11,7 +11,7 @@ import type { Restaurant } from "@/types/restaurant-type";
 import { storeToRefs } from "pinia";
 import { computed, ref } from "vue";
 const storeRestaurant = useRestaurantStore();
-const { restaurants , filteredRestaurants } = storeToRefs(storeRestaurant);
+const { restaurants, filteredRestaurants } = storeToRefs(storeRestaurant);
 
 const textQuantity = computed(() => {
   const count = restaurants.value.length;
@@ -81,9 +81,12 @@ const filtrosActivos = ref<CriteriosFiltroInput>({ type_food: [], price: [] });
 
 const fetchDataRestaurantByFilter = async (valores: CriteriosFiltroInput) => {
 
-  filtrosActivos.value = valores;
-  storeRestaurant.setCriteriaFilters(valores);
-  
+  try {
+    filtrosActivos.value = valores;
+    storeRestaurant.setCriteriaFilters(valores);
+  } catch (error) {
+    console.error("Error al obtener los restaurantes filtrados:", error);
+  }
 
 };
 
@@ -108,7 +111,7 @@ const fetchDataRestaurantByFilter = async (valores: CriteriosFiltroInput) => {
         <div class="px-4 py-6">
           <span class="p-2 bg-gray-700 rounded-2xl text-ghost text-xs">{{
             item.address
-          }}</span>
+            }}</span>
           <h3 class="mt-4 text-base font-bold text-gray-800 uppercase">
             {{ item.name }}
           </h3>
