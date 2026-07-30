@@ -149,7 +149,11 @@ export const useRestaurantStore = defineStore('restaurant', () => {
     const token = await authStore.getToken();
     if (!token) throw new Error("No se pudo recuperar un token válido.");
 
-    const { url, options } = RestaurantService.createRestaurant(token, restaurantData);
+
+
+    const csrfToken = authStore.csrfToken;
+
+    const { url, options } = RestaurantService.createRestaurant(token, csrfToken, restaurantData);
     await executeFetch(url, options);
 
     if (restaurantResponse.value?.data) {

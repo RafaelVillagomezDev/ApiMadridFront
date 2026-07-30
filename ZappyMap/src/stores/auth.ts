@@ -7,19 +7,18 @@ export const useAuthStore = defineStore('auth', () => {
 
   const token = computed(() => authData.value?.data?.user?.token || null);
   const dataMemory = computed(() => authData.value);
-
+  const csrfToken = ref<string | null>(sessionStorage.getItem('csrf_token'));
 
   const {
     data: authData,
     loading,
     error,
+    headers, 
     execute: executeAuth
   } = useFetch(
     AuthService.getTokenConfig().url,
     AuthService.getTokenConfig().options
   );
-
-
 
   /**
    * Funcion para obtener el token de autenticación. Maneja errores y casos donde la API responde sin token.
@@ -31,19 +30,30 @@ export const useAuthStore = defineStore('auth', () => {
 
     if (error.value) return null;
 
-    // API funcionó pero no trajo token
+    // NUEVA LÓGICA CSRF: Atrapamos el token de los headers
+    
+    const incomingCsrf = headers.value?.get('x-new-csrf-token');
+    
+    if (incomingCsrf) {
+      csrfToken.value = incomingCsrf; // Lo guardamos en Pinia
+      sessionStorage.setItem('csrf_token', incomingCsrf); // Lo guardamos en el navegador
+      
+      
+    }
+
     if (!token.value) {
       console.warn("La API respondió OK pero el token es nulo.");
       return null;
     }
 
-    return authData.value?.data?.user?.token || null;
+    return token.value; 
 
   };
 
   return {
     data: readonly(dataMemory),
     token,
+    csrfToken: readonly(csrfToken), 
     error: readonly(error),
     loading: readonly(loading),
     getToken,

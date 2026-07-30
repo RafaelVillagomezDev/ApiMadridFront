@@ -58,7 +58,7 @@ export const RestaurantService = {
     };
 
   },
-  createRestaurant: (token: string | null, restaurantData: any) => {
+  createRestaurant: (token: string | null, csrfToken: string | null, restaurantData: any) => {
     return {
       url: `${API_ENDPOINTS.RESTAURANT+"create"}`,
       options: {
@@ -67,10 +67,13 @@ export const RestaurantService = {
           "Content-Type": "application/json",
           ...(token
             ? { Authorization: `Bearer ${token}` }
+            : {}),
+          ...(csrfToken
+            ? { "X-CSRF-Token": csrfToken }
             : {})
         },
         body: restaurantData
-        
+
       }
     };
   }

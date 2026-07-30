@@ -17,6 +17,7 @@ interface FetchResponse<T> {
     data: Ref<T | null>;
     error: Ref<AppError | null>;
     loading: Ref<boolean>;
+    headers: Ref<Headers | null>;
     // Execute ahora acepta parámetros opcionales
     execute: (urlOverride?: string, optionsOverride?: FetchOptions) => Promise<void>;
 }
@@ -28,6 +29,7 @@ export function useFetch<T = any>(
     const data = ref<T | null>(null) as Ref<T | null>;
     const error = ref<AppError | null>(null);
     const loading = ref<boolean>(false);
+    const headers = ref<Headers | null>(null);
 
     let controller: AbortController | null = null;
 
@@ -60,7 +62,7 @@ export function useFetch<T = any>(
                     ...currentOptions.headers,
                 },
                 signal: controller.signal,
-                
+                credentials: 'include', // Para enviar cookies si es necesario
                 body: !isGetOrHead && currentOptions.body 
                 ? (typeof currentOptions.body === 'string' 
                     ? currentOptions.body 
@@ -69,7 +71,7 @@ export function useFetch<T = any>(
             };
 
             const response = await fetch(currentUrl, fetchConfig);
-
+            
             if (!response.ok) {
                 let serverMessage = `Error ${response.status}: ${response.statusText}`;
                 
@@ -94,6 +96,7 @@ export function useFetch<T = any>(
             }
 
             data.value = await response.json();
+            headers.value = response.headers;
 
         } catch (err: any) {
             if (err.name === 'AbortError') return;
@@ -120,6 +123,7 @@ export function useFetch<T = any>(
         data,
         error: readonly(error) as Ref<AppError | null>,
         loading: readonly(loading),
+        headers: readonly(headers),
         execute: fetchData
     };
 }
