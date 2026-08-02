@@ -1,5 +1,6 @@
 import restaurantRoutes from '@/modules/restaurant/router/routes-restaurant'
 import registerRoutes from '@/modules/app/router/routes-general'
+import userRoutes from '@/modules/user/router/routes-user'
 import { createRouter, createWebHistory } from 'vue-router'
 
 
@@ -17,6 +18,7 @@ const router = createRouter({
     },
     restaurantRoutes,
     registerRoutes,
+    userRoutes,
     {
       path: '/:pathMatch(.*)*',
       name: 'not-found',
