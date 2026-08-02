@@ -12,6 +12,8 @@ const showPassword = () => {
 const hidePassword = () => {
     isPasswordVisible.value = false;
 };
+
+await new Promise(resolve => setTimeout(resolve, 2000));
 </script>
 
 <template>
@@ -54,10 +56,10 @@ const hidePassword = () => {
 
                     <!-- Cabecera del formulario -->
                     <header class="mb-8">
-                        <h1 class="text-white text-2xl md:text-4xl font-semibold mb-2">Create an account</h1>
+                        <h1 class="text-white text-2xl md:text-4xl font-semibold mb-2">Registrarse</h1>
                         <p class="text-gray-400">
-                            Already have an account?
-                            <RouterLink to="/login" class="text-white hover:underline transition-colors">Log in
+                            ¿Ya tienes una cuenta?
+                            <RouterLink to="/login" class="text-white hover:underline transition-colors">Iniciar sesión
                             </RouterLink>
                         </p>
                     </header>
@@ -124,14 +126,14 @@ const hidePassword = () => {
                             <input id="terms" type="checkbox"
                                 class="w-4 h-4 rounded bg-[#1c1c24] border-gray-600 text-purple-600 focus:ring-purple-600 focus:ring-offset-0 cursor-pointer">
                             <label for="terms" class="text-gray-400 text-sm cursor-pointer select-none">
-                                I agree to the <a href="#" class="text-white hover:underline">Terms & Conditions</a>
+                                Acepto los <a href="#" class="text-white hover:underline">Terminos y condiciones</a>
                             </label>
                         </div>
 
                         <!-- Botón de Registro -->
                         <button type="submit"
                             class="w-full bg-emerald-vibe text-white rounded-lg p-3 font-medium hover:bg-purple-700 transition-colors mt-6">
-                            Create account
+                            Registrarse
                         </button>
                     </form>
                 </div>
