@@ -13,7 +13,7 @@ const hidePassword = () => {
     isPasswordVisible.value = false;
 };
 
-await new Promise(resolve => setTimeout(resolve, 2000));
+
 </script>
 
 <template>

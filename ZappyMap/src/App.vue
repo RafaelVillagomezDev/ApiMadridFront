@@ -4,7 +4,7 @@ import FooterLayout from '@core/layout/FooterLayout.vue';
 import Favourites from '@core/components/modal/Favourites.vue';
 import MenuBurguer from '@core/components/modal/MenuBurguer.vue';
 
-// 👇 AQUÍ ESTÁ EL FIX: Importar el loader
+
 import GlobalLoader from '@core/components/spinners/GlobalLoader.vue';
 
 import { computed, ref } from 'vue';
@@ -32,32 +32,43 @@ const mainClass = computed(() => hideLayout.value ? '' : 'grow');
 </script>
 
 <template>
-  <div class="flex min-h-screen flex-col">
 
-    <header v-if="!hideLayout">
-      <NavbarLayout v-model:isMenuOpen="isMenuOpen" v-model:isFavOpen="isFavOpen" />
-    </header>
+  <RouterView v-slot="{ Component }">
+    <template v-if="Component">
+      <Suspense>
+        
+  
+        <template #default>
+          
+          <div>
+            <div class="flex min-h-screen flex-col">
+              
+        
+              <header v-if="!hideLayout">
+                <NavbarLayout v-model:isMenuOpen="isMenuOpen" v-model:isFavOpen="isFavOpen" />
+              </header>
 
-    <main :class="[mainClass]">
-      <RouterView v-slot="{ Component }">
-        <!-- ESTE v-if: solo intenta cargar si el componente ya existe en memoria -->
-        <template v-if="Component">
-          <Suspense>
-            <template #default>
-              <component :is="Component" />
-            </template>
 
-            <template #fallback>
-              <GlobalLoader />
-            </template>
-          </Suspense>
+              <main :class="[mainClass]">
+                <component :is="Component" />
+              </main>
+
+          
+              <FooterLayout v-if="!hideLayout" />
+            </div>
+
+            <!-- Modales -->
+            <Favourites v-if="isFavOpen" v-model="isFavOpen" />
+            <MenuBurguer v-if="isMenuOpen" v-model="isMenuOpen" />
+          </div>
         </template>
-      </RouterView>
-    </main>
 
-    <FooterLayout v-if="!hideLayout" />
-  </div>
+      
+        <template #fallback>
+          <GlobalLoader />
+        </template>
 
-  <Favourites v-if="isFavOpen" v-model="isFavOpen" />
-  <MenuBurguer v-if="isMenuOpen" v-model="isMenuOpen" />
+      </Suspense>
+    </template>
+  </RouterView>
 </template>
