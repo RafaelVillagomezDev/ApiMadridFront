@@ -13,6 +13,15 @@ const hidePassword = () => {
     isPasswordVisible.value = false;
 };
 
+const handleRegister = (event: Event) => {
+  event.preventDefault();
+  const formData = new FormData(event.target as HTMLFormElement);
+  
+  const data = Object.fromEntries(formData);
+  
+  console.log(data);
+};
+
 
 </script>
 
@@ -65,17 +74,17 @@ const hidePassword = () => {
                     </header>
 
                     <!-- Formulario -->
-                    <form class="space-y-4">
+                    <form @submit="handleRegister" class="space-y-4">
                         <!-- Nombres -->
                         <div class="flex flex-col md:flex-row gap-4">
                             <div class="w-full md:w-1/2">
-                                <label for="firstName" class="sr-only">Nombre</label>
-                                <input id="firstName" type="text" placeholder="Nombre"
+                                <label for="name" class="sr-only">Nombre</label>
+                                <input id="name" name="name" type="text" placeholder="Nombre"
                                     class="w-full bg-[#1c1c24] text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-emerald-vibe">
                             </div>
                             <div class="w-full md:w-1/2">
-                                <label for="lastName" class="sr-only">Apellido</label>
-                                <input id="lastName" type="text" placeholder="Apellido"
+                                <label for="surname" class="sr-only">Apellido</label>
+                                <input id="surname" name="surname" type="text" placeholder="Apellido"
                                     class="w-full bg-[#1c1c24] text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-emerald-vibe">
                             </div>
                         </div>
@@ -83,7 +92,7 @@ const hidePassword = () => {
                         <!-- Email -->
                         <div>
                             <label for="email" class="sr-only">Email</label>
-                            <input id="email" type="email" placeholder="Email"
+                            <input id="email" name="email" type="email" placeholder="Email"
                                 class="w-full bg-[#1c1c24] text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-emerald-vibe">
                         </div>
 
@@ -93,7 +102,7 @@ const hidePassword = () => {
                             <label for="password" class="sr-only">Contraseña</label>
 
                             
-                            <input id="password" :type="isPasswordVisible ? 'text' : 'password'"
+                            <input id="password" name="password" :type="isPasswordVisible ? 'text' : 'password'"
                                 placeholder="Contraseña"
                                 class="w-full bg-[#1c1c24] text-white rounded-lg p-3 pr-10 focus:outline-none focus:ring-2 focus:ring-emerald-vibe select-none">
 
@@ -123,7 +132,7 @@ const hidePassword = () => {
 
                         <!-- Términos -->
                         <div class="flex items-center space-x-2 pt-2">
-                            <input id="terms" type="checkbox"
+                            <input id="terms" name="terms" type="checkbox"
                                 class="w-4 h-4 rounded bg-[#1c1c24] border-gray-600 text-purple-600 focus:ring-purple-600 focus:ring-offset-0 cursor-pointer">
                             <label for="terms" class="text-gray-400 text-sm cursor-pointer select-none">
                                 Acepto los <a href="#" class="text-white hover:underline">Terminos y condiciones</a>
