@@ -14,6 +14,11 @@ const generalRoutes = {
             name: 'user-register',
             component: () => import('@modules/user/views/RegisterUser.vue'),
         },
+        {
+            path: 'login', 
+            name: 'user-login',
+            component: () => import('@modules/user/views/Login.vue'),
+        },
         
         
     ]

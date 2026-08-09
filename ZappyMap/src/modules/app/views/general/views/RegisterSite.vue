@@ -137,8 +137,8 @@ const onFormSubmit = async (data: Record<string, any>) => {
 
 <template>
 
-
-        <template #box_left>
+    <SplitLayout>
+         <template #box_left>
             <img src="https://images.unsplash.com/photo-1543807535-eceef0bc6599?q=80&w=1000&auto=format&fit=crop"
                 class="absolute inset-0 w-full h-full object-cover" alt="Personas disfrutando en un local" />
 
@@ -217,6 +217,6 @@ const onFormSubmit = async (data: Record<string, any>) => {
                 </button>
             </div>
         </template>
-
-¡
+    </SplitLayout>
+       
 </template>

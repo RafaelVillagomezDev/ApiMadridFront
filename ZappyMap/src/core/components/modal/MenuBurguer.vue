@@ -1,21 +1,24 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import Nav from '../base/Nav.vue';
-import { House, Utensils, X, Store } from 'lucide-vue-next'; 
+import { House, Utensils, X, Store, User } from 'lucide-vue-next'; 
 
 const isOpen = defineModel<boolean>()
 
+const closeNav = () => {
+    isOpen.value = false;
+}
+
+// Añadimos la función onClick a cada objeto del router para que el componente Nav pueda ejecutarla al hacer click
 const routerCustom = ref([
-    { linkCustom: '/home', linkTitle: 'Inicio', linkIcon: House },
-    { linkCustom: '/general/register', linkTitle: 'Registrar sitio', linkIcon: Store },
-    { linkCustom: '/restaurant', linkTitle: 'Restaurantes', linkIcon: Utensils },
+    { linkCustom: '/user/login', linkTitle: 'Iniciar sesión', linkIcon: User, action: closeNav },
+    { linkCustom: '/home', linkTitle: 'Inicio', linkIcon: House, action: closeNav },
+    { linkCustom: '/general/register', linkTitle: 'Registrar sitio', linkIcon: Store, action: closeNav },
+    { linkCustom: '/restaurant', linkTitle: 'Restaurantes', linkIcon: Utensils, action: closeNav },
 ])
 
 const customClassRouterLink = ref("text-slate-900 text-xl flex flex-row items-center gap-2 cursor-pointer");
 const customClassNav = ref("flex flex-col gap-y-4")
-const closeNav = () => {
-    isOpen.value = false;
-}
 </script>
 
 <template>

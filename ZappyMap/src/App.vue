@@ -18,7 +18,8 @@ const isFavOpen = ref(false);
 const routesWithoutLayout = [
   { name: 'not-found' },
   { name: 'login' },
-  { name: 'user-register' }
+  { name: 'user-register' },
+  { name: 'user-login' }
 ];
 
 // 👇 Añadido | null | undefined para evitar errores de TS

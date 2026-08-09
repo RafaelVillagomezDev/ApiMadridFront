@@ -68,7 +68,7 @@ const handleRegister = (event: Event) => {
                         <h1 class="text-white text-2xl md:text-4xl font-semibold mb-2">Registrarse</h1>
                         <p class="text-gray-400">
                             ¿Ya tienes una cuenta?
-                            <RouterLink to="/login" class="text-white hover:underline transition-colors">Iniciar sesión
+                            <RouterLink to="/user/login" class="text-white hover:underline transition-colors">Iniciar sesión
                             </RouterLink>
                         </p>
                     </header>
