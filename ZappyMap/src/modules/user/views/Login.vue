@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import { userStore } from '@/stores/user';
+const store = userStore();
 
 const isPasswordVisible = ref(false);
 
@@ -11,11 +13,16 @@ const hidePassword = () => {
     isPasswordVisible.value = false;
 };
 
-const handleLogin = (event: Event) => {
+const handleLogin = async (event: Event) => {
     event.preventDefault();
     const formData = new FormData(event.target as HTMLFormElement);
-    const data = Object.fromEntries(formData);
+   
     
+    const data = Object.fromEntries(formData) as { email: string; password: string };
+
+    const login = await store.login(data);
+
+    console.log("Login response:", login);
     console.log("Datos de inicio de sesión:", data);
     // Aquí puedes realizar la llamada a tu API o Store de Pinia
 };
