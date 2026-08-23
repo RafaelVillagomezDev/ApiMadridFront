@@ -28,4 +28,22 @@ const router = createRouter({
   ]
 })
 
+router.beforeEach((to, from, next) => {
+    
+    const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
+    
+
+    const isAuthenticated = localStorage.getItem('user_jwt') !== null;
+
+    if (requiresAuth && !isAuthenticated) {
+      
+        next({ name: 'user-login' });
+    } else if (to.name === 'user-login' && isAuthenticated) {
+      
+        next({ name: 'user-view' });
+    } else {
+        next();
+    }
+});
+
 export default router

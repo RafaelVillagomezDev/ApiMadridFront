@@ -7,6 +7,9 @@ const generalRoutes = {
             path: '', 
             name: 'user-view',
             component: () => import('@modules/user/views/User.vue'),
+            meta: { 
+                requiresAuth: true 
+            }
         },
         
         {

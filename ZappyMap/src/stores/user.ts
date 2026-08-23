@@ -5,7 +5,7 @@ import { computed, readonly, ref } from 'vue';
 
 export const userStore = defineStore('user', () => {
 
-    const token = computed(() => userData.value?.data?.user?.token || null);
+    const token = ref<string | null>(localStorage.getItem('user_jwt'));
     const dataMemory = computed(() => userData.value);
     const csrfToken = ref<string | null>(sessionStorage.getItem('csrf_token'));
 
@@ -104,15 +104,21 @@ export const userStore = defineStore('user', () => {
             return false;
         }
 
-        if (!token.value) {
-            console.warn("La API respondió OK pero el token de sesión es nulo.");
-            return false;
-        }
 
         const rotatedCsrf = headers.value?.get('x-new-csrf-token') || headers.value?.get('x-csrf-token');
         if (rotatedCsrf) {
             csrfToken.value = rotatedCsrf;
         }
+
+        const receivedToken = userData.value?.data?.user?.token;
+
+        if (!receivedToken) {
+            console.warn("La API respondió OK pero el token de sesión es nulo.");
+            return false;
+        }
+
+        token.value = receivedToken;
+        localStorage.setItem('user_jwt', receivedToken);
 
         console.log("¡Inicio de sesión exitoso! Token de usuario obtenido:", token.value);
         return true;
