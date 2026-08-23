@@ -1,7 +1,7 @@
 const API_ENDPOINTS = {
-  USER_TOKEN: "http://localhost:3000/api/v1/user/token",
-  USER_LOGIN: "http://localhost:3000/api/v1/user/login",
-  USER_REGISTER: "http://localhost:3000/api/v1/user/register",
+  USER_TOKEN: "/api/v1/user/token",
+  USER_LOGIN: "/api/v1/user/login",
+  USER_REGISTER: "/api/v1/user/register",
 };
 
 export const UserService = {
@@ -20,6 +20,7 @@ export const UserService = {
       url: API_ENDPOINTS.USER_LOGIN,
       options: {
         method: "POST",
+        credentials: 'include',
         headers: {
           "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),

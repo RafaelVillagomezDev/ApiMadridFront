@@ -1,7 +1,7 @@
 import type { FiltersRestaurant } from "@/types/router-types";
 
 const API_ENDPOINTS = {
-  RESTAURANT: "http://localhost:3000/api/v1/restaurant/",
+  RESTAURANT: "/api/v1/restaurant/",
 
 };
 

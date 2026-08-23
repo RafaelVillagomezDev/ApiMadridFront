@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import { userStore } from '@/stores/user';
+const store = userStore();
 
-// Definimos las props para controlar la visibilidad del modal desde el componente padre
+
 defineProps<{
     isOpen: boolean;
 }>();
 
-// Evento para notificar al padre cuando se debe cerrar el modal
+
 const emit = defineEmits<{
     (e: 'close'): void;
 }>();
@@ -21,13 +23,15 @@ const hidePassword = () => {
     isPasswordVisible.value = false;
 };
 
-const handleLogin = (event: Event) => {
+const handleLogin = async (event: Event) => {
     event.preventDefault();
     const formData = new FormData(event.target as HTMLFormElement);
-    const data = Object.fromEntries(formData);
+    const data = Object.fromEntries(formData)  as { email: string; password: string };;
     
-    console.log("Datos de login:", data);
-    // Aquí puedes realizar la llamada a tu API o Store de Pinia
+    const login = await store.login(data);
+
+    console.log("Login response:", login);
+    console.log("Datos de inicio de sesión:", data);
 };
 </script>
 

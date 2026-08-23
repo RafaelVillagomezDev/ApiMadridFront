@@ -51,24 +51,32 @@ export const userStore = defineStore('user', () => {
     };
 
     const fetchCsrf = async (): Promise<boolean> => {
-        await executeUser('http://localhost:3000/api/v1/csrf', {
-            method: 'GET'
-        });
+        const csrfOptions: any = {
+            method: 'GET',
+            credentials: 'include', 
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        };
+
+        await executeUser('http://localhost:3000/api/v1/csrf', csrfOptions);
 
         if (error.value) {
             console.error("Error al obtener el CSRF:", error.value);
             return false;
         }
 
-        const incomingCsrf = headers.value?.get('X-New-CSRF-Token') || headers.value?.get('x-new-csrf-token') || headers.value?.get('x-csrf-token');
-        
+        // EXTRAER DEL JSON: Navegamos por userData.value -> data -> csrfToken
+        const incomingCsrf = userData.value?.data?.csrfToken;
+
         if (incomingCsrf) {
             csrfToken.value = incomingCsrf;
             sessionStorage.setItem('csrf_token', incomingCsrf);
             return true;
         }
 
-        console.warn("No se encontró ninguna cabecera CSRF en la respuesta.");
+        console.warn("No se encontró csrfToken en el cuerpo de la respuesta.");
         return false;
     };
 
@@ -83,6 +91,8 @@ export const userStore = defineStore('user', () => {
         }
 
         const loginConfig = UserService.userLoginConfig(credentials);
+
+      
 
         // 2. Ejecutamos el login enviando el token CSRF obtenido en los headers
         await executeUser(loginConfig.url, {
@@ -118,3 +128,5 @@ export const userStore = defineStore('user', () => {
         fetchCsrf
     };
 });
+
+

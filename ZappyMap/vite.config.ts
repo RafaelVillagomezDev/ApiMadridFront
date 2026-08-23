@@ -27,6 +27,17 @@ export default defineConfig({
       '@schemas': fileURLToPath(new URL('./src/modules/shop/schemas', import.meta.url)),
     },
   },
+  
+  // 🔥 AQUÍ ESTÁ EL PROXY AÑADIDO
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000', // El puerto de tu backend Node/Express
+        changeOrigin: true,
+      },
+    },
+  },
+
   // Configuración de Vitest integrada
   test: {
     globals: true,
