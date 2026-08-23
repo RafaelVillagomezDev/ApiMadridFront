@@ -60,23 +60,23 @@ export const userStore = defineStore('user', () => {
             }
         };
 
-        await executeUser('http://localhost:3000/api/v1/csrf', csrfOptions);
+  
+        await executeUser('/api/v1/csrf', csrfOptions);
 
         if (error.value) {
             console.error("Error al obtener el CSRF:", error.value);
             return false;
         }
 
-        // EXTRAER DEL JSON: Navegamos por userData.value -> data -> csrfToken
-        const incomingCsrf = userData.value?.data?.csrfToken;
+
+        const incomingCsrf = headers.value?.get('x-new-csrf-token') || headers.value?.get('x-csrf-token');
 
         if (incomingCsrf) {
             csrfToken.value = incomingCsrf;
-            sessionStorage.setItem('csrf_token', incomingCsrf);
             return true;
         }
 
-        console.warn("No se encontró csrfToken en el cuerpo de la respuesta.");
+        console.warn("No se encontró el token CSRF en las cabeceras de la respuesta (X-New-CSRF-Token).");
         return false;
     };
 
@@ -90,18 +90,14 @@ export const userStore = defineStore('user', () => {
             return false;
         }
 
-        const loginConfig = UserService.userLoginConfig(credentials);
+        const loginConfig = UserService.userLoginConfig(
+            credentials, 
+            null, 
+            csrfToken.value 
+        );
 
-      
-
-        // 2. Ejecutamos el login enviando el token CSRF obtenido en los headers
-        await executeUser(loginConfig.url, {
-            ...loginConfig.options,
-            headers: {
-                ...loginConfig.options.headers,
-                ...(csrfToken.value ? { "x-csrf-token": csrfToken.value } : {})
-            }
-        });
+     
+        await executeUser(loginConfig.url, loginConfig.options);
 
         if (error.value) {
             console.error("Error al iniciar sesión:", error.value.message);
@@ -111,6 +107,11 @@ export const userStore = defineStore('user', () => {
         if (!token.value) {
             console.warn("La API respondió OK pero el token de sesión es nulo.");
             return false;
+        }
+
+        const rotatedCsrf = headers.value?.get('x-new-csrf-token') || headers.value?.get('x-csrf-token');
+        if (rotatedCsrf) {
+            csrfToken.value = rotatedCsrf;
         }
 
         console.log("¡Inicio de sesión exitoso! Token de usuario obtenido:", token.value);

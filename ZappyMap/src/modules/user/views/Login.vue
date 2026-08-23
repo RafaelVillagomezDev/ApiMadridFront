@@ -24,7 +24,7 @@ const handleLogin = async (event: Event) => {
 
     console.log("Login response:", login);
     console.log("Datos de inicio de sesión:", data);
-    // Aquí puedes realizar la llamada a tu API o Store de Pinia
+  
 };
 </script>
 
