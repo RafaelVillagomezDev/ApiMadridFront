@@ -1,5 +1,6 @@
 import { readonly, ref, toValue, type MaybeRefOrGetter, type Ref } from 'vue';
-type ErrorType = 'NOT_FOUND' | 'SERVER_ERROR' | 'NETWORK_ERROR' | 'UNKNOWN';
+
+type ErrorType = 'NOT_FOUND' | 'SERVER_ERROR' | 'NETWORK_ERROR' | 'UNKNOWN' | 'UNAUTHORIZED';
 
 interface AppError {
     message: string;
@@ -11,6 +12,7 @@ interface FetchOptions {
     method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | string;
     headers?: Record<string, string>;
     body?: any;
+    _isRetry?: boolean; // Flag interno para evitar bucles infinitos
 }
 
 interface FetchResponse<T> {
@@ -18,7 +20,6 @@ interface FetchResponse<T> {
     error: Ref<AppError | null>;
     loading: Ref<boolean>;
     headers: Ref<Headers | null>;
-    // Execute ahora acepta parámetros opcionales
     execute: (urlOverride?: string, optionsOverride?: FetchOptions) => Promise<void>;
 }
 
@@ -33,13 +34,10 @@ export function useFetch<T = any>(
 
     let controller: AbortController | null = null;
 
-    // CORRECCIÓN: Aceptamos los overrides
     const fetchData = async (urlOverride?: string, optionsOverride?: FetchOptions) => {
-        // Prioridad: 1. El parámetro de la función | 2. El parámetro inicial del composable
         const currentUrl = urlOverride || toValue(url);
         const currentOptions = optionsOverride || toValue(options);
 
-        // 1. Validaciones previas
         if (!currentUrl) {
             console.warn("useFetch: No URL provided for execution.");
             return;
@@ -62,7 +60,7 @@ export function useFetch<T = any>(
                     ...currentOptions.headers,
                 },
                 signal: controller.signal,
-                credentials: 'include', // Para enviar cookies si es necesario
+                credentials: 'include', 
                 body: !isGetOrHead && currentOptions.body 
                 ? (typeof currentOptions.body === 'string' 
                     ? currentOptions.body 
@@ -72,6 +70,40 @@ export function useFetch<T = any>(
 
             const response = await fetch(currentUrl, fetchConfig);
             
+            const incomingCsrf = response.headers.get('x-new-csrf-token') || response.headers.get('x-csrf-token');
+            if (incomingCsrf) {
+                // Importamos el store dinámicamente para actualizar el token
+                const { userStore } = await import('@/stores/user');
+                const store = userStore();
+                store.setCsrf(incomingCsrf);
+            }
+            // 🔥 BLOQUE 401: Intercepción y Refresh
+            if (response.status === 401 && !currentOptions._isRetry) {
+                // Importación dinámica (Lazy Load) para evitar referencias circulares con el Store
+                const { userStore } = await import('@/stores/user'); 
+                const store = userStore();
+
+                // Evitamos que las rutas de auth (como login o el propio refresh) entren en el bucle
+                if (!currentUrl.includes('/auth/')) {
+                    const refreshed = await store.refreshSession();
+
+                  if (refreshed) {
+                        const retryOptions: FetchOptions = {
+                            ...currentOptions,
+                            _isRetry: true,
+                            headers: {
+                                ...currentOptions.headers, // Trae el Content-Type, etc.
+                                'Authorization': `Bearer ${store.token}`, // Inyecta el NUEVO JWT
+                                ...(store.csrfToken && { 'x-csrf-token': store.csrfToken }) // 🔥
+                            }
+                        };
+                        
+                        // Retornamos la ejecución recursiva para procesar la nueva respuesta
+                        return await fetchData(currentUrl, retryOptions);
+                    }
+                }
+            }
+
             if (!response.ok) {
                 let serverMessage = `Error ${response.status}: ${response.statusText}`;
                 
@@ -91,11 +123,19 @@ export function useFetch<T = any>(
                     console.error("Error leyendo stream de error:", e);
                 }
 
-                const type: ErrorType = response.status === 404 ? 'NOT_FOUND' : 'SERVER_ERROR';
+                let type: ErrorType = 'SERVER_ERROR';
+                if (response.status === 404) type = 'NOT_FOUND';
+                if (response.status === 401) type = 'UNAUTHORIZED';
+
                 throw { message: serverMessage, type, status: response.status };
             }
 
-            data.value = await response.json();
+            // Para peticiones exitosas (200 OK)
+            // Aseguramos que la respuesta tenga contenido antes de hacer parse JSON
+            const textResponse = await response.text();
+            if (textResponse) {
+                data.value = JSON.parse(textResponse);
+            }
             headers.value = response.headers;
 
         } catch (err: any) {

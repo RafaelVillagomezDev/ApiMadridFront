@@ -8,6 +8,10 @@ export const userStore = defineStore('user', () => {
     const token = ref<string | null>(localStorage.getItem('user_jwt'));
     const dataMemory = computed(() => userData.value);
     const csrfToken = ref<string | null>(sessionStorage.getItem('csrf_token'));
+    const setCsrf = (newToken: string) => {
+        csrfToken.value = newToken;
+        sessionStorage.setItem('csrf_token', newToken);
+    };
 
     const {
         data: userData,
@@ -60,14 +64,12 @@ export const userStore = defineStore('user', () => {
             }
         };
 
-  
         await executeUser('/api/v1/csrf', csrfOptions);
 
         if (error.value) {
             console.error("Error al obtener el CSRF:", error.value);
             return false;
         }
-
 
         const incomingCsrf = headers.value?.get('x-new-csrf-token') || headers.value?.get('x-csrf-token');
 
@@ -82,7 +84,7 @@ export const userStore = defineStore('user', () => {
 
     const login = async (credentials: { email: string; password: string }) => {
 
-        // 1. Primero pedimos el CSRF inicial limpio con GET /v1/csrf para inicializar la cookie y el header
+        //  Primero pedimos el CSRF inicial limpio con GET /v1/csrf para inicializar la cookie y el header
         const csrfSuccess = await fetchCsrf();
 
         if (!csrfSuccess) {
@@ -96,14 +98,12 @@ export const userStore = defineStore('user', () => {
             csrfToken.value 
         );
 
-     
         await executeUser(loginConfig.url, loginConfig.options);
 
         if (error.value) {
             console.error("Error al iniciar sesión:", error.value.message);
             return false;
         }
-
 
         const rotatedCsrf = headers.value?.get('x-new-csrf-token') || headers.value?.get('x-csrf-token');
         if (rotatedCsrf) {
@@ -124,16 +124,72 @@ export const userStore = defineStore('user', () => {
         return true;
     }
 
+    /**
+     * 🔥 Función para limpiar los datos de sesión localmente (Logout Frontend)
+     */
+    const logoutLocal = () => {
+        token.value = null;
+        csrfToken.value = null;
+        localStorage.removeItem('user_jwt');
+        sessionStorage.removeItem('csrf_token');
+    };
+
+    /**
+     * 🔥 Función para intentar renovar la sesión silenciosamente
+     */
+    const refreshSession = async (): Promise<boolean> => {
+        const refreshOptions: any = {
+            method: 'POST',
+            credentials: 'include', // Para que el navegador envíe la cookie 'userRefreshToken'
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                // Enviamos el CSRF para que el middleware de Express nos deje pasar
+                'x-csrf-token': csrfToken.value 
+            }
+        };
+
+        await executeUser('/api/v1/auth/refresh', refreshOptions);
+
+        if (error.value) {
+            console.warn("No se pudo renovar la sesión. Expulsando...");
+            logoutLocal();
+            return false;
+        }
+
+        const receivedToken = userData.value?.data?.user?.token;
+        
+        if (receivedToken) {
+            token.value = receivedToken;
+            localStorage.setItem('user_jwt', receivedToken);
+        } else {
+            console.warn("El refresh fue exitoso pero no llegó el nuevo JWT.");
+            logoutLocal();
+            return false;
+        }
+
+        // El backend probablemente haya rotado el CSRF también durante el refresh
+        const rotatedCsrf = headers.value?.get('x-new-csrf-token') || headers.value?.get('x-csrf-token');
+        if (rotatedCsrf) {
+            csrfToken.value = rotatedCsrf;
+            sessionStorage.setItem('csrf_token', rotatedCsrf);
+        }
+
+        console.log("¡Sesión renovada con éxito!");
+        return true;
+    };
+
     return {
         data: readonly(dataMemory),
-        token,
+        token, // Exponemos token para que tus interceptores/guardias lo usen
         csrfToken: readonly(csrfToken),
         error: readonly(error),
         loading: readonly(loading),
         getTokenUser,
         login,
-        fetchCsrf
+        fetchCsrf,
+        refreshSession, // 🔥 Exportamos la función
+        logoutLocal,    // 🔥 Exportamos la función
+        setCsrf 
     };
 });
-
-
