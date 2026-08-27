@@ -60,16 +60,16 @@ export function useFetch<T = any>(
                     ...currentOptions.headers,
                 },
                 signal: controller.signal,
-                credentials: 'include', 
-                body: !isGetOrHead && currentOptions.body 
-                ? (typeof currentOptions.body === 'string' 
-                    ? currentOptions.body 
-                    : JSON.stringify(currentOptions.body)) 
-                : null
+                credentials: 'include',
+                body: !isGetOrHead && currentOptions.body
+                    ? (typeof currentOptions.body === 'string'
+                        ? currentOptions.body
+                        : JSON.stringify(currentOptions.body))
+                    : null
             };
 
             const response = await fetch(currentUrl, fetchConfig);
-            
+
             const incomingCsrf = response.headers.get('x-new-csrf-token') || response.headers.get('x-csrf-token');
             if (incomingCsrf) {
                 // Importamos el store dinámicamente para actualizar el token
@@ -80,14 +80,15 @@ export function useFetch<T = any>(
             // 🔥 BLOQUE 401: Intercepción y Refresh
             if (response.status === 401 && !currentOptions._isRetry) {
                 // Importación dinámica (Lazy Load) para evitar referencias circulares con el Store
-                const { userStore } = await import('@/stores/user'); 
+                const { userStore } = await import('@/stores/user');
                 const store = userStore();
 
-                // Evitamos que las rutas de auth (como login o el propio refresh) entren en el bucle
-                if (!currentUrl.includes('/auth/')) {
+                const isAuthRoute = currentUrl.includes('/login') || currentUrl.includes('/refresh') || currentUrl.includes('/auth');
+
+                if (!isAuthRoute) {
                     const refreshed = await store.refreshSession();
 
-                  if (refreshed) {
+                    if (refreshed) {
                         const retryOptions: FetchOptions = {
                             ...currentOptions,
                             _isRetry: true,
@@ -97,7 +98,7 @@ export function useFetch<T = any>(
                                 ...(store.csrfToken && { 'x-csrf-token': store.csrfToken }) // 🔥
                             }
                         };
-                        
+
                         // Retornamos la ejecución recursiva para procesar la nueva respuesta
                         return await fetchData(currentUrl, retryOptions);
                     }
@@ -106,7 +107,7 @@ export function useFetch<T = any>(
 
             if (!response.ok) {
                 let serverMessage = `Error ${response.status}: ${response.statusText}`;
-                
+
                 try {
                     const errorClone = response.clone();
                     const errorText = await errorClone.text();

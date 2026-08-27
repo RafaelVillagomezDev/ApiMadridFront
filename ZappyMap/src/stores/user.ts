@@ -1,95 +1,84 @@
 import { useFetch } from "@/core/composables/useFetch";
-import { UserService } from "@/core/services/api-user.service"
+import router from "@/core/router/routes";
+import { UserService } from "@/core/services/api-user.service";
 import { defineStore } from "pinia";
 import { computed, readonly, ref } from 'vue';
 
 export const userStore = defineStore('user', () => {
 
     const token = ref<string | null>(localStorage.getItem('user_jwt'));
-    const dataMemory = computed(() => userData.value);
     const csrfToken = ref<string | null>(sessionStorage.getItem('csrf_token'));
+    
     const setCsrf = (newToken: string) => {
         csrfToken.value = newToken;
         sessionStorage.setItem('csrf_token', newToken);
     };
 
+    // INSTANCIA PARA EL LOGIN 
     const {
-        data: userData,
-        loading,
-        error,
-        headers,
-        execute: executeUser
+        data: loginData,
+        loading: loginLoading,
+        error: loginError,
+        headers: loginHeaders,
+        execute: executeLogin
     } = useFetch(
         UserService.getUserTokenConfig().url,
         UserService.getUserTokenConfig().options
     );
 
-    /**
-     * Función para obtener el token de autenticación enviando las credenciales.
-     */
-    const getTokenUser = async (credentials: { email: string; password: string }): Promise<string | null> => {
+    // INSTANCIA PARA EL CSRF 
+    const {
+        error: csrfError,
+        headers: csrfHeaders,
+        execute: executeCsrf
+    } = useFetch();
 
-        await executeUser(undefined, {
-            method: 'POST',
-            body: credentials
-        });
+    // INSTANCIA PARA EL REFRESH 
+    const {
+        data: refreshData,
+        error: refreshError,
+        headers: refreshHeaders,
+        execute: executeRefresh
+    } = useFetch();
 
-        if (error.value) {
-            console.error("Error al obtener el token de usuario:", error.value.message || error.value);
-            return null;
-        }
 
-        const incomingCsrf = headers.value?.get('X-New-CSRF-Token') || headers.value?.get('x-new-csrf-token') || headers.value?.get('x-csrf-token');
-
-        if (incomingCsrf) {
-            csrfToken.value = incomingCsrf;
-            sessionStorage.setItem('csrf_token', incomingCsrf);
-        }
-
-        if (!token.value) {
-            console.warn("La API respondió OK pero el token es nulo.");
-            return null;
-        }
-
-        return token.value;
-    };
+    const dataMemory = computed(() => loginData.value);
 
     const fetchCsrf = async (): Promise<boolean> => {
-        const csrfOptions: any = {
+        const csrfOptions = {
             method: 'GET',
-            credentials: 'include', 
+            credentials: 'include' as RequestCredentials, 
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             }
         };
 
-        await executeUser('/api/v1/csrf', csrfOptions);
+   
+        await executeCsrf('/api/v1/csrf', csrfOptions);
 
-        if (error.value) {
-            console.error("Error al obtener el CSRF:", error.value);
+        if (csrfError.value) {
+            console.error("Error al obtener el CSRF:", csrfError.value);
             return false;
         }
 
-        const incomingCsrf = headers.value?.get('x-new-csrf-token') || headers.value?.get('x-csrf-token');
+        const incomingCsrf = csrfHeaders.value?.get('x-new-csrf-token') || csrfHeaders.value?.get('x-csrf-token');
 
         if (incomingCsrf) {
-            csrfToken.value = incomingCsrf;
+            setCsrf(incomingCsrf); 
             return true;
         }
 
-        console.warn("No se encontró el token CSRF en las cabeceras de la respuesta (X-New-CSRF-Token).");
+        console.warn("No se encontró el token CSRF en las cabeceras.");
         return false;
     };
 
     const login = async (credentials: { email: string; password: string }) => {
 
-        //  Primero pedimos el CSRF inicial limpio con GET /v1/csrf para inicializar la cookie y el header
         const csrfSuccess = await fetchCsrf();
 
         if (!csrfSuccess) {
-            console.error("Error al obtener el token CSRF inicial.");
-            return false;
+            return { success: false, message: csrfError.value?.message || "Error de seguridad CSRF." };
         }
 
         const loginConfig = UserService.userLoginConfig(
@@ -98,81 +87,80 @@ export const userStore = defineStore('user', () => {
             csrfToken.value 
         );
 
-        await executeUser(loginConfig.url, loginConfig.options);
-
-        if (error.value) {
-            console.error("Error al iniciar sesión:", error.value.message);
-            return false;
+        // Usamos el ejecutor del Login
+        await executeLogin(loginConfig.url, loginConfig.options);
+   
+        if (loginError.value) {
+            return { 
+                success: false, 
+                message: loginError.value?.message || "Ocurrió un error al iniciar sesión."
+            };
         }
 
-        const rotatedCsrf = headers.value?.get('x-new-csrf-token') || headers.value?.get('x-csrf-token');
+        const rotatedCsrf = loginHeaders.value?.get('x-new-csrf-token') || loginHeaders.value?.get('x-csrf-token');
         if (rotatedCsrf) {
-            csrfToken.value = rotatedCsrf;
+            setCsrf(rotatedCsrf); 
         }
 
-        const receivedToken = userData.value?.data?.user?.token;
+        const receivedToken = loginData.value?.data?.user?.token;
 
         if (!receivedToken) {
-            console.warn("La API respondió OK pero el token de sesión es nulo.");
-            return false;
+            return { success: false, message: "Error interno: La API no devolvió el token." };
         }
 
         token.value = receivedToken;
         localStorage.setItem('user_jwt', receivedToken);
+        
+        const apiSuccessMessage = loginData.value?.message || "Login correcto";
 
-        console.log("¡Inicio de sesión exitoso! Token de usuario obtenido:", token.value);
-        return true;
+        return { 
+            success: true, 
+            message: apiSuccessMessage 
+        }; 
     }
 
-    /**
-     * 🔥 Función para limpiar los datos de sesión localmente (Logout Frontend)
-     */
     const logoutLocal = () => {
         token.value = null;
         csrfToken.value = null;
         localStorage.removeItem('user_jwt');
         sessionStorage.removeItem('csrf_token');
+        
+        router.push({ name: 'user-login' });
     };
 
-    /**
-     * 🔥 Función para intentar renovar la sesión silenciosamente
-     */
     const refreshSession = async (): Promise<boolean> => {
-        const refreshOptions: any = {
+        const refreshOptions = {
             method: 'POST',
-            credentials: 'include', // Para que el navegador envíe la cookie 'userRefreshToken'
+            credentials: 'include' as RequestCredentials, 
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
-                // Enviamos el CSRF para que el middleware de Express nos deje pasar
-                'x-csrf-token': csrfToken.value 
+                'x-csrf-token': csrfToken.value || '' 
             }
         };
 
-        await executeUser('/api/v1/auth/refresh', refreshOptions);
+       
+        await executeRefresh('/api/v1/auth/refresh', refreshOptions);
 
-        if (error.value) {
+        if (refreshError.value) {
             console.warn("No se pudo renovar la sesión. Expulsando...");
             logoutLocal();
             return false;
         }
 
-        const receivedToken = userData.value?.data?.user?.token;
+        const receivedToken = refreshData.value?.data?.user?.token;
         
         if (receivedToken) {
             token.value = receivedToken;
             localStorage.setItem('user_jwt', receivedToken);
         } else {
-            console.warn("El refresh fue exitoso pero no llegó el nuevo JWT.");
             logoutLocal();
             return false;
         }
 
-        // El backend probablemente haya rotado el CSRF también durante el refresh
-        const rotatedCsrf = headers.value?.get('x-new-csrf-token') || headers.value?.get('x-csrf-token');
+        const rotatedCsrf = refreshHeaders.value?.get('x-new-csrf-token') || refreshHeaders.value?.get('x-csrf-token');
         if (rotatedCsrf) {
-            csrfToken.value = rotatedCsrf;
-            sessionStorage.setItem('csrf_token', rotatedCsrf);
+            setCsrf(rotatedCsrf); 
         }
 
         console.log("¡Sesión renovada con éxito!");
@@ -180,16 +168,15 @@ export const userStore = defineStore('user', () => {
     };
 
     return {
-        data: readonly(dataMemory),
-        token, // Exponemos token para que tus interceptores/guardias lo usen
+        data: dataMemory, 
+        token, 
         csrfToken: readonly(csrfToken),
-        error: readonly(error),
-        loading: readonly(loading),
-        getTokenUser,
+        error: readonly(loginError),
+        loading: readonly(loginLoading),
         login,
         fetchCsrf,
-        refreshSession, // 🔥 Exportamos la función
-        logoutLocal,    // 🔥 Exportamos la función
+        refreshSession, 
+        logoutLocal,    
         setCsrf 
     };
 });
