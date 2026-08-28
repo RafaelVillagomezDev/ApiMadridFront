@@ -11,6 +11,14 @@ const generalRoutes = {
                 requiresAuth: true 
             }
         },
+        {
+            path: 'register/site', 
+            name: 'user-register-site',
+            component: () => import('@modules/user/views/RegisterSite.vue'),
+            meta: { 
+                requiresAuth: true 
+            }
+        },
         
         {
             path: 'register', 

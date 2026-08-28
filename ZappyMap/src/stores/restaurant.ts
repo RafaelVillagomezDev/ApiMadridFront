@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { computed, readonly, ref } from 'vue';
-
+import { storeToRefs } from 'pinia';
+import { userStore } from '@/stores/user'; 
 import { RestaurantService } from "@/core/services/api-restaurant.service";
 import { useAuthStore } from "./auth";
 import { useFetch } from "@/core/composables/useFetch";
@@ -145,21 +146,37 @@ export const useRestaurantStore = defineStore('restaurant', () => {
     });
   });
 
+
   const createRestaurant = async (restaurantData: Partial<Restaurant>) => {
-    const token = await authStore.getToken();
-    if (!token) throw new Error("No se pudo recuperar un token válido.");
+  
+    const storeUser = userStore();
+    
+    
+    const { token, csrfToken } = storeToRefs(storeUser);
 
+  
+    if (!token.value || !csrfToken.value) {
+        throw new Error("Permisos insuficientes: No se pudo recuperar un token o CSRF válido.");
+    }
 
-
-    const csrfToken = authStore.csrfToken;
-
-    const { url, options } = RestaurantService.createRestaurant(token, csrfToken, restaurantData);
+    const { url, options } = RestaurantService.createRestaurant(
+        token.value, 
+        csrfToken.value, 
+        restaurantData
+    );
+    
     await executeFetch(url, options);
 
     if (restaurantResponse.value?.data) {
-      restaurants.value.push(restaurantResponse.value.data);
+        console.log("Restaurante creado con éxito:", restaurantResponse.value.data);
+        restaurants.value.push(restaurantResponse.value.data);
+        
+        return { data: restaurantResponse.value.data }; 
     }
-  }
+    
+    throw new Error("No se recibió respuesta del servidor al crear el restaurante.");
+};
+
   return {
     filters,
     restaurants,

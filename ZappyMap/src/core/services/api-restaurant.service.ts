@@ -63,15 +63,11 @@ export const RestaurantService = {
       url: `${API_ENDPOINTS.RESTAURANT+"create"}`,
       options: {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token
-            ? { Authorization: `Bearer ${token}` }
-            : {}),
-          ...(csrfToken
-            ? { "X-CSRF-Token": csrfToken }
-            : {})
-        },
+         headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(csrfToken ? { "X-CSRF-Token": csrfToken } : {})
+      },
         body: restaurantData
 
       }

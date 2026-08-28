@@ -52,19 +52,37 @@ export function useFetch<T = any>(
         try {
             const method = currentOptions.method?.toUpperCase() || 'GET';
             const isGetOrHead = ['GET', 'HEAD'].includes(method);
+            
+           
+            const isFormData = currentOptions.body instanceof FormData;
 
+          
+            const fetchHeaders: Record<string, string> = {
+                ...currentOptions.headers,
+            };
+
+   
+            if (!isFormData && !fetchHeaders['Content-Type']) {
+                fetchHeaders['Content-Type'] = 'application/json';
+            }
+            
+            
+            if (isFormData && fetchHeaders['Content-Type']) {
+                delete fetchHeaders['Content-Type'];
+            }
+
+            // 🔥 3. Configuramos el body respetando el FormData
             const fetchConfig: RequestInit = {
                 method,
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...currentOptions.headers,
-                },
+                headers: fetchHeaders,
                 signal: controller.signal,
                 credentials: 'include',
                 body: !isGetOrHead && currentOptions.body
-                    ? (typeof currentOptions.body === 'string'
-                        ? currentOptions.body
-                        : JSON.stringify(currentOptions.body))
+                    ? (isFormData 
+                        ? currentOptions.body // Si es imagen/archivo
+                        : (typeof currentOptions.body === 'string'
+                            ? currentOptions.body
+                            : JSON.stringify(currentOptions.body))) // Si es objeto normal, JSON
                     : null
             };
 

@@ -17,7 +17,7 @@ const { data, error, loading, execute } = useFetch('http://localhost:3000/api/v1
 });
 
 onMounted(async () => {
-    console.log("Llamando a http://localhost:3000/api/v1/restaurant/ ...");
+    console.log("Llamando a http://localhost:3000/api/v1/restaurant/");
     await execute();
 });
 </script>

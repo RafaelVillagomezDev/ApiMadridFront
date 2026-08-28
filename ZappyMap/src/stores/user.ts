@@ -21,10 +21,7 @@ export const userStore = defineStore('user', () => {
         error: loginError,
         headers: loginHeaders,
         execute: executeLogin
-    } = useFetch(
-        UserService.getUserTokenConfig().url,
-        UserService.getUserTokenConfig().options
-    );
+    } = useFetch(); 
 
     // INSTANCIA PARA EL CSRF 
     const {
@@ -41,8 +38,42 @@ export const userStore = defineStore('user', () => {
         execute: executeRefresh
     } = useFetch();
 
+    // INSTANCIA PARA SUBIR IMÁGENES
+    const {
+        data: uploadData,
+        loading: uploadLoading,
+        error: uploadError,
+        execute: executeUpload
+    } = useFetch();
+
 
     const dataMemory = computed(() => loginData.value);
+
+  
+    const uploadImage = async (restaurantId: string, formData: FormData) => {
+        if (!token.value || !csrfToken.value) {
+            return { success: false, message: "Permisos insuficientes para subir la imagen." };
+        }
+
+     
+        const uploadConfig = UserService.uploadImage(
+            restaurantId,
+            formData,
+            token.value,
+            csrfToken.value
+        );
+
+
+        await executeUpload(uploadConfig.url, uploadConfig.options);
+
+        
+        if (uploadError.value) {
+            console.error("Error al subir la imagen:", uploadError.value);
+            return { success: false, message: uploadError.value.message };
+        }
+
+        return { success: true, data: uploadData.value };
+    };
 
     const fetchCsrf = async (): Promise<boolean> => {
         const csrfOptions = {
@@ -53,7 +84,6 @@ export const userStore = defineStore('user', () => {
                 'Content-Type': 'application/json'
             }
         };
-
    
         await executeCsrf('/api/v1/csrf', csrfOptions);
 
@@ -139,7 +169,6 @@ export const userStore = defineStore('user', () => {
             }
         };
 
-       
         await executeRefresh('/api/v1/auth/refresh', refreshOptions);
 
         if (refreshError.value) {
@@ -173,10 +202,12 @@ export const userStore = defineStore('user', () => {
         csrfToken: readonly(csrfToken),
         error: readonly(loginError),
         loading: readonly(loginLoading),
+        uploadLoading: readonly(uploadLoading), 
         login,
         fetchCsrf,
         refreshSession, 
         logoutLocal,    
-        setCsrf 
+        setCsrf,
+        uploadImage
     };
 });
