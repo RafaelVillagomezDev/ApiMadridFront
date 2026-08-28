@@ -5,6 +5,7 @@ import BaseForm from '@core/components/base/BaseForm.vue';
 import SplitLayout from '@core/layout/SplitLayout.vue';
 import type { FormField } from '@/types/form-type';
 import { useRestaurantStore } from '@/stores/restaurant';
+import { createRestaurantStepOneSchema, createRestaurantStepTwoSchema } from '@/modules/restaurant/schemas/register_restaurant.schema';
 import { storeToRefs } from 'pinia';
 
 
@@ -202,13 +203,13 @@ const onFormSubmit = async (data: Record<string, any>) => {
             </div>
 
             <div class="relative">
-                <BaseForm v-if="currentStep === 1" :fields="stepOneFields" submitText="Continuar a Ubicación"
+                <BaseForm v-if="currentStep === 1" :fields="stepOneFields"  :validation-schema="createRestaurantStepOneSchema" submitText="Continuar a Ubicación"
                     @submit="processStep" />
 
-                <BaseForm v-else-if="currentStep === 2" :fields="stepTwoFields" submitText="Subir imagenes"
+                <BaseForm v-else-if="currentStep === 2" :fields="stepTwoFields" :validation-schema="createRestaurantStepTwoSchema"  submitText="Subir imagenes"
                     @submit="processStep" />
 
-                <BaseForm v-else-if="currentStep === 3" :fields="stepThreeFields" submitText="Registrar sitio"
+                <BaseForm v-else-if="currentStep === 3" :fields="stepThreeFields"   submitText="Registrar sitio"
                     @submit="processStep" />
 
                 <button v-if="currentStep > 1" @click="prevStep"
