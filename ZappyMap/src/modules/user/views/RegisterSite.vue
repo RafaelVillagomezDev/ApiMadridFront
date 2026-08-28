@@ -134,7 +134,9 @@ const processStep = async (stepData: Record<string, any>) => {
             
             if (image && createdRestaurantId.value) {
                 const uploadData = new FormData();
-                uploadData.append('image', image);
+               
+                
+                uploadData.append('images', image);
                 
                 const uploadResult = await storeUser.uploadImage(createdRestaurantId.value, uploadData);
                 

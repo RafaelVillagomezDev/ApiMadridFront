@@ -1,5 +1,5 @@
 import { useFetch } from "@/core/composables/useFetch";
-import { UserService} from "@/core/services/api-user.service";
+import { AuthService} from "@/core/services/api.service";
 import { defineStore } from "pinia";
 import { computed, readonly, ref } from 'vue';
 
@@ -16,8 +16,8 @@ export const useAuthStore = defineStore('auth', () => {
     headers, 
     execute: executeAuth
   } = useFetch(
-    UserService.getUserTokenConfig().url, 
-    UserService.getUserTokenConfig().options,
+    AuthService.getTokenConfig().url, 
+    AuthService.getTokenConfig().options,
   );
 
   /**
