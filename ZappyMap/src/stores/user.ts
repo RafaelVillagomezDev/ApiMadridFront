@@ -8,7 +8,9 @@ export const userStore = defineStore('user', () => {
 
     const token = ref<string | null>(localStorage.getItem('user_jwt'));
     const csrfToken = ref<string | null>(sessionStorage.getItem('csrf_token'));
-    
+    const isLogged = computed(() => !!token.value);
+
+
     const setCsrf = (newToken: string) => {
         csrfToken.value = newToken;
         sessionStorage.setItem('csrf_token', newToken);
@@ -203,6 +205,7 @@ export const userStore = defineStore('user', () => {
         error: readonly(loginError),
         loading: readonly(loginLoading),
         uploadLoading: readonly(uploadLoading), 
+        isLogged: readonly(isLogged),
         login,
         fetchCsrf,
         refreshSession, 

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { useFavouritesStore } from '@/stores/favourites';
+import { userStore } from '@/stores/user';
 import logo from '@core/assets/icons/logo.svg';
-import { Menu, Heart,Store,User} from 'lucide-vue-next';
+import { Menu, Heart, Store, User } from 'lucide-vue-next';
 import { storeToRefs } from 'pinia';
 import { RouterLink } from 'vue-router';
 import LoginModal from '@/modules/user/modal/LoginUser.vue';
@@ -15,6 +16,8 @@ defineProps<{
 }>();
 
 const store = useFavouritesStore();
+const storeUser = userStore();
+const { isLogged } = storeToRefs(storeUser);
 const { totalFavourites } = storeToRefs(store);
 
 const emit = defineEmits<{
@@ -33,11 +36,13 @@ const emit = defineEmits<{
         </div>
 
         <div class="flex items-center gap-2.5">
-            <RouterLink to="/general/register" class="hidden md:flex p-2 hover:bg-slate-100  bg-emerald-500 rounded-full transition-colors  items-center gap-1">
-                 <span>Registrar sitio</span>
+            <RouterLink :to="isLogged ? '/user/register/site' : '/general/register'"
+                class="hidden md:flex p-2 hover:bg-slate-100 bg-emerald-500 rounded-full transition-colors items-center gap-1">
+                <span>Registrar sitio</span>
                 <Store :size="20" />
             </RouterLink>
-             <button @click="isLoginModalOpen = true" class="hidden md:flex p-2 hover:bg-  bg-slate-800 rounded-full transition-colors  items-center gap-1">
+            <button @click="isLoginModalOpen = true"
+                class="hidden md:flex p-2 hover:bg-  bg-slate-800 rounded-full transition-colors  items-center gap-1">
                 <User :size="20" class="text-white " />
             </button>
             <button type="button" aria-label="Abrir favoritos" @click="emit('update:isFavOpen', true)"

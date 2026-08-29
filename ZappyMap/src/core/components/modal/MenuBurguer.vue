@@ -1,7 +1,13 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref,computed } from 'vue'
 import Nav from '../base/Nav.vue';
-import { House, Utensils, X, Store, User } from 'lucide-vue-next'; 
+import { House, Utensils, X, Store, User,CircleUserRound } from 'lucide-vue-next'; 
+import {userStore} from '@/stores/user.ts'
+import {storeToRefs} from 'pinia'
+
+
+const store = userStore();
+const {isLogged} = storeToRefs(store)
 
 const isOpen = defineModel<boolean>()
 
@@ -9,13 +15,31 @@ const closeNav = () => {
     isOpen.value = false;
 }
 
-// Añadimos la función onClick a cada objeto del router para que el componente Nav pueda ejecutarla al hacer click
-const routerCustom = ref([
+
+const routerGuest = ref([
     { linkCustom: '/user/login', linkTitle: 'Iniciar sesión', linkIcon: User, action: closeNav },
     { linkCustom: '/home', linkTitle: 'Inicio', linkIcon: House, action: closeNav },
     { linkCustom: '/general/register', linkTitle: 'Registrar sitio', linkIcon: Store, action: closeNav },
     { linkCustom: '/restaurant', linkTitle: 'Restaurantes', linkIcon: Utensils, action: closeNav },
-])
+]);
+
+
+const routerLogged = ref([
+
+    { linkCustom: '/user', linkTitle: 'Area personal', linkIcon: CircleUserRound, action: closeNav },
+    { linkCustom: '/home', linkTitle: 'Inicio', linkIcon: House, action: closeNav },
+    { linkCustom: '/restaurant', linkTitle: 'Restaurantes', linkIcon: Utensils, action: closeNav },
+    { linkCustom: '/user/register/site', linkTitle: 'Registrar sitio', linkIcon: Store, action: closeNav },
+   
+
+]);
+
+
+const routerCustom = computed(() => {
+
+    return isLogged ? routerLogged.value : routerGuest.value;
+});
+
 
 const customClassRouterLink = ref("text-slate-900 text-xl flex flex-row items-center gap-2 cursor-pointer");
 const customClassNav = ref("flex flex-col gap-y-4")

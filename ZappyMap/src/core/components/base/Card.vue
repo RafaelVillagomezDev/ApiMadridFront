@@ -27,10 +27,10 @@
           </router-link>
           <button @click="executeToggleFavourite"
             class="p-1 cursor-pointer inline-flex items-center top-2 right-2 bg-gray-300ation-ed-full text-xs font-semibold text-white absolute">
-            <Heart :size="18" :class="[
+            <Heart :size="20" :class="[
               props.isFavourite
                 ? 'fill-red-500 text-red-500 scale-110'
-                : 'text-slate-600 group-hover:text-red-400 scale-100',
+                : 'text-alice-600 group-hover:text-red-400 scale-100',
             ]" />
           </button>
         </div>
