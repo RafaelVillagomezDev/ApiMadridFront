@@ -160,6 +160,16 @@ export const userStore = defineStore('user', () => {
         router.push({ name: 'user-login' });
     };
 
+
+    const logoutUser = () => {
+        token.value = null;
+        csrfToken.value = null;
+        localStorage.removeItem('user_jwt');
+        sessionStorage.removeItem('csrf_token');
+        
+        router.push({ name: 'user-login' });
+    };
+
     const refreshSession = async (): Promise<boolean> => {
         const refreshOptions = {
             method: 'POST',
@@ -209,7 +219,8 @@ export const userStore = defineStore('user', () => {
         login,
         fetchCsrf,
         refreshSession, 
-        logoutLocal,    
+        logoutLocal,   
+        logoutUser, 
         setCsrf,
         uploadImage
     };

@@ -2,17 +2,19 @@
 import NavbarLayout from '@core/layout/NavbarLayout.vue';
 import FooterLayout from '@core/layout/FooterLayout.vue';
 import Favourites from '@core/components/modal/Favourites.vue';
-import MenuBurguer from '@core/components/modal/MenuBurguer.vue';
-
+import MenuBurguerLayout from '@core/layout/MenuBurguerLayout.vue';
+import UserMenuBurguerLayout from './core/layout/UserMenuBurguerLayout.vue';
 
 import GlobalLoader from '@core/components/spinners/GlobalLoader.vue';
 
 import { computed, ref } from 'vue';
 import { useRoute, type RouteRecordNameGeneric } from 'vue-router';
 
+
 const route = useRoute();
 
 const isMenuOpen = ref(false);
+const isMenuUserOpen=ref(false)
 const isFavOpen = ref(false);
 
 const routesWithoutLayout = [
@@ -46,7 +48,7 @@ const mainClass = computed(() => hideLayout.value ? '' : 'grow');
               
         
               <header v-if="!hideLayout">
-                <NavbarLayout v-model:isMenuOpen="isMenuOpen" v-model:isFavOpen="isFavOpen" />
+                <NavbarLayout v-model:isMenuOpen="isMenuOpen" v-model:isFavOpen="isFavOpen" v-model:isMenuUserOpen="isMenuUserOpen" />
               </header>
 
 
@@ -60,7 +62,8 @@ const mainClass = computed(() => hideLayout.value ? '' : 'grow');
 
             <!-- Modales -->
             <Favourites v-if="isFavOpen" v-model="isFavOpen" />
-            <MenuBurguer v-if="isMenuOpen" v-model="isMenuOpen" />
+            <MenuBurguerLayout v-if="isMenuOpen" v-model="isMenuOpen" />
+            <UserMenuBurguerLayout v-if="isMenuUserOpen" v-model="isMenuUserOpen" />
           </div>
         </template>
 

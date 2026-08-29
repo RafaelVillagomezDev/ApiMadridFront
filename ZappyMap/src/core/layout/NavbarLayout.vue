@@ -10,9 +10,11 @@ import { ref } from 'vue';
 
 const isLoginModalOpen = ref(false);
 
+
 defineProps<{
     isMenuOpen: boolean;
     isFavOpen: boolean;
+    isMenuUserOpen: boolean;
 }>();
 
 const store = useFavouritesStore();
@@ -23,7 +25,17 @@ const { totalFavourites } = storeToRefs(store);
 const emit = defineEmits<{
     (e: 'update:isMenuOpen', value: boolean): void;
     (e: 'update:isFavOpen', value: boolean): void;
+    (e: 'update:isMenuUserOpen', value: boolean): void;
 }>();
+
+const handleModalLogged = () => {
+    if (isLogged.value) {
+        emit('update:isMenuUserOpen', true);
+    } else {
+        isLoginModalOpen.value = true;
+    }
+}
+
 </script>
 
 <template>
@@ -41,9 +53,9 @@ const emit = defineEmits<{
                 <span>Registrar sitio</span>
                 <Store :size="20" />
             </RouterLink>
-            <button @click="isLoginModalOpen = true"
-                class="hidden md:flex p-2 hover:bg-  bg-slate-800 rounded-full transition-colors  items-center gap-1">
-                <User :size="20" class="text-white " />
+            <button @click="handleModalLogged" id="userButton"
+                class="flex p-2 hover:bg-slate-700 bg-slate-800 rounded-full transition-colors items-center gap-1">
+                <User :size="20" class="text-white" />
             </button>
             <button type="button" aria-label="Abrir favoritos" @click="emit('update:isFavOpen', true)"
                 class="relative p-2 hover:bg-slate-100 rounded-full transition-colors">

@@ -1,53 +1,45 @@
 <script setup lang="ts">
-import { ref,computed } from 'vue'
-import Nav from '../base/Nav.vue';
-import { House, Utensils, X, Store, User,CircleUserRound } from 'lucide-vue-next'; 
-import {userStore} from '@/stores/user.ts'
-import {storeToRefs} from 'pinia'
+import { ref, computed } from 'vue'
+import Nav from '@/core/components/base/Nav.vue';
+import { X } from 'lucide-vue-next';
 
-
-const store = userStore();
-const {isLogged} = storeToRefs(store)
-
-const isOpen = defineModel<boolean>()
-
-const closeNav = () => {
-    isOpen.value = false;
+// Definimos la estructura de los enlaces
+interface NavLink {
+    linkCustom: string;
+    linkTitle: string;
+    linkIcon: any;
+    action?: () => void;
 }
 
+// Recibimos los enlaces y clases opcionales
+const props = defineProps<{
+    links: NavLink[];
+    customClassRouterLink?: string;
+    customClassNav?: string;
+}>();
 
-const routerGuest = ref([
-    { linkCustom: '/user/login', linkTitle: 'Iniciar sesión', linkIcon: User, action: closeNav },
-    { linkCustom: '/home', linkTitle: 'Inicio', linkIcon: House, action: closeNav },
-    { linkCustom: '/general/register', linkTitle: 'Registrar sitio', linkIcon: Store, action: closeNav },
-    { linkCustom: '/restaurant', linkTitle: 'Restaurantes', linkIcon: Utensils, action: closeNav },
-]);
+const isOpenMenu = defineModel<boolean>();
 
+const closeNav = () => {
+    isOpenMenu.value = false;
+}
 
-const routerLogged = ref([
-
-    { linkCustom: '/user', linkTitle: 'Area personal', linkIcon: CircleUserRound, action: closeNav },
-    { linkCustom: '/home', linkTitle: 'Inicio', linkIcon: House, action: closeNav },
-    { linkCustom: '/restaurant', linkTitle: 'Restaurantes', linkIcon: Utensils, action: closeNav },
-    { linkCustom: '/user/register/site', linkTitle: 'Registrar sitio', linkIcon: Store, action: closeNav },
-   
-
-]);
-
-
-const routerCustom = computed(() => {
-
-    return isLogged ? routerLogged.value : routerGuest.value;
+// Inyectamos automáticamente la acción de cerrar el menú en todos los enlaces
+const processedLinks = computed(() => {
+    return props.links.map(link => ({
+        ...link,
+        action: link.action || closeNav 
+    }));
 });
 
-
-const customClassRouterLink = ref("text-slate-900 text-xl flex flex-row items-center gap-2 cursor-pointer");
-const customClassNav = ref("flex flex-col gap-y-4")
+// Clases por defecto si el padre no envía unas personalizadas
+const defaultClassRouterLink = ref("text-slate-900 text-xl flex flex-row items-center gap-2 cursor-pointer");
+const defaultClassNav = ref("flex flex-col gap-y-4");
 </script>
 
 <template>
     <Teleport to="body">
-        <div v-if="isOpen" class="fixed inset-0 z-[100]">
+        <div v-if="isOpenMenu" class="fixed inset-0 z-[100]">
 
             <Transition enter-active-class="transition-opacity duration-300 ease-out" enter-from-class="opacity-0"
                 enter-to-class="opacity-100" leave-active-class="transition-opacity duration-200 ease-in"
@@ -60,14 +52,21 @@ const customClassNav = ref("flex flex-col gap-y-4")
                 leave-active-class="transition-transform duration-200 ease-in" leave-from-class="translate-x-0"
                 leave-to-class="-translate-x-full">
                 <div class="relative w-3/4 max-w-sm h-screen bg-white shadow-2xl overflow-y-auto pt-10">
-                    <div class="p-6 flex flex-col">
+                    <div class="p-6 flex flex-col h-full">
                         <button @click="closeNav" type="button"
                             class="absolute top-4 right-4 p-2 text-slate-500 hover:text-slate-900">
                             <X :size="28" />
                         </button>
 
-                        <Nav :routerCustom="routerCustom" :customClassRouterLink="customClassRouterLink"
-                            :customClassNav="customClassNav" />
+                        <Nav :routerCustom="processedLinks" 
+                             :customClassRouterLink="customClassRouterLink || defaultClassRouterLink"
+                             :customClassNav="customClassNav || defaultClassNav" />
+                             
+                        <!-- Slot con nombre -->
+                        <div class="mt-8">
+                            <slot name="footer-action"></slot>
+                        </div>
+                        
                     </div>
                 </div>
             </Transition>
