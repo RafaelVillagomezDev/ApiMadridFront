@@ -13,7 +13,7 @@ const restaurant = computed(() => storeRestaurant.getRestaurantById(props.id));
 </script>
 
 <template>
-    <div class="max-w-[1136px] mx-auto px-4 w-full">
+    <div class="max-w-[1136px] mx-auto px-4  py-1 w-full">
     <div class="w-full h-[300px] md:h-[410px] overflow-hidden rounded-xl">
         <GridImages 
             v-if="restaurant" 

@@ -10,7 +10,8 @@ export const RestaurantService = {
 
   getRestaurant: (
     token: string | null,
-    filters: FiltersRestaurant={}
+    filters: FiltersRestaurant = {},
+    csrfToken?: string | null
   ) => {
 
     const params = new URLSearchParams();
@@ -50,24 +51,24 @@ export const RestaurantService = {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          ...(token
-            ? { Authorization: `Bearer ${token}` }
-            : {})
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          ...(csrfToken ? { "X-CSRF-Token": csrfToken } : {})
         }
       }
+
     };
 
   },
   createRestaurant: (token: string | null, csrfToken: string | null, restaurantData: any) => {
     return {
-      url: `${API_ENDPOINTS.RESTAURANT+"create"}`,
+      url: `${API_ENDPOINTS.RESTAURANT + "create"}`,
       options: {
         method: "POST",
-         headers: {
-        "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        ...(csrfToken ? { "X-CSRF-Token": csrfToken } : {})
-      },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          ...(csrfToken ? { "X-CSRF-Token": csrfToken } : {})
+        },
         body: restaurantData
 
       }

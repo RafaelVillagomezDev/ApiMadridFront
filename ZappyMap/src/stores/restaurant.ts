@@ -37,6 +37,8 @@ export const useRestaurantStore = defineStore('restaurant', () => {
     execute: executeFetch
   } = useFetch();
 
+  
+
   const getRestaurant = async () => {
     const token = await authStore.getToken();
     if (!token) throw new Error("No se pudo recuperar un token válido.");
@@ -88,9 +90,52 @@ export const useRestaurantStore = defineStore('restaurant', () => {
   };
 
 
-  function setCriteriaFilters(criteria: OptionTabProps): void {
+ async function setCriteriaFilters(criteria: OptionTabProps): Promise<void> {
     activeTabsCriteria.value = criteria;
-      console.log('📦 criteria en store:', JSON.stringify(criteria, null, 2));
+    console.log('📦 criteria en store:', JSON.stringify(criteria, null, 2));
+
+    //  Crear un objeto limpio para los parámetros de la URL y de la API
+    const queryParams: Record<string, any> = {};
+
+    Object.keys(criteria).forEach((key) => {
+      const valuesFilter = criteria[key as keyof OptionTabProps] as any;
+
+      if (!valuesFilter || (Array.isArray(valuesFilter) && valuesFilter.length === 0)) {
+        return; 
+      }
+
+      if (Array.isArray(valuesFilter)) {
+        queryParams[key] = valuesFilter.map((opcion) => 
+          opcion && typeof opcion === 'object' ? (opcion.value ?? opcion.id) : opcion
+        );
+      } else {
+        queryParams[key] = valuesFilter;
+      }
+    });
+
+    //  Actualizar la URL con los query params
+    await router.push({
+      path: router.currentRoute.value.path, 
+      query: queryParams 
+    });
+
+    //  HACER EL FETCH A LA API CON LOS FILTROS APLICADOS
+    try {
+      const token = await authStore.getToken();
+      if (!token) throw new Error("No se pudo recuperar un token válido para filtrar.");
+
+      // Pasamos el objeto queryParams formateado a tu servicio
+      const { url, options } = RestaurantService.getRestaurant(token, queryParams);
+
+      await executeFetch(url, options);
+
+      // Actualizar el estado con los datos reales devueltos por el backend
+      if (restaurantResponse.value?.data) {
+        restaurants.value = restaurantResponse.value.data;
+      }
+    } catch (err) {
+      console.error("Error al obtener los restaurantes filtrados:", err);
+    }
   }
 
 
