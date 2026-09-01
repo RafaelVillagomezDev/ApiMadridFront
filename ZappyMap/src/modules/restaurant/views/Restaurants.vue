@@ -3,7 +3,10 @@ import Banner from "@/core/components/base/Banner.vue";
 import Card from "@/core/components/base/Card.vue";
 import FilterTab from "@/core/components/base/FilterTab.vue";
 import GridCard from "@/core/components/base/GridCard.vue";
-// Opcional: si tienes un componente Spinner propio impórtalo aquí
+import Paginator from '@/core/components/paginator/paginator.vue';
+
+
+
 // import Spinner from "@/core/components/base/Spinner.vue"; 
 
 import { useFavouritesStore } from "@/stores/favourites";
@@ -18,7 +21,7 @@ const storeRestaurant = useRestaurantStore();
 const storeFavourites = useFavouritesStore();
 
 // Extraemos loading y error directamente del store
-const { restaurants, filteredRestaurants, loading, error } = storeToRefs(storeRestaurant);
+const { restaurants, filteredRestaurants, loading, error,totalItems,pageItems,totalPages,currentPage } = storeToRefs(storeRestaurant);
 
 const textQuantity = computed(() => {
   const count = restaurants.value.length;
@@ -75,17 +78,34 @@ const isFav = (item: Restaurant | undefined) => {
   return storeFavourites.isFavourite(item.id);
 };
 
-type CriteriosFiltroInput = Record<string, OptionTabPropsData[]>;
-const filtrosActivos = ref<CriteriosFiltroInput>({ type_food: [], price: [] });
 
-const fetchDataRestaurantByFilter = async (valores: CriteriosFiltroInput) => {
+
+type CriteriosFiltroInput = Record<string, OptionTabPropsData[] | number | string>;
+
+
+const filtrosActivos = ref<Record<string, OptionTabPropsData[]>>({ type_food: [], price: [] });
+
+
+const fetchDataRestaurantByFilter = async (valores: Record<string, OptionTabPropsData[]>) => {
   try {
+    // Guardamos los filtros puros localmente (por si el paginador los necesita)
     filtrosActivos.value = valores;
-    await storeRestaurant.setCriteriaFilters(valores);
+    
+    // Creamos un nuevo objeto combinando los filtros y reseteando a la página 1
+    const parametrosConPaginacion: CriteriosFiltroInput = {
+      ...valores,
+      page: 1, 
+    };
+
+    await storeRestaurant.setCriteriaFilters(parametrosConPaginacion);
   } catch (err) {
     console.error("Error al obtener los restaurantes filtrados:", err);
   }
 };
+
+
+
+
 </script>
 
 <template>
@@ -151,6 +171,13 @@ const fetchDataRestaurantByFilter = async (valores: CriteriosFiltroInput) => {
         </template>
       </Card>
     </GridCard>
-
+   <Paginator 
+    :total-items="totalItems"
+    :page-items="pageItems"
+    :total-pages="totalPages"
+    :current-page="currentPage"
+    :filtered-restaurants="filteredRestaurants"
+    @change-page="fetchDataRestaurantByFilter (filtrosActivos)"
+  />
   </div>
 </template>

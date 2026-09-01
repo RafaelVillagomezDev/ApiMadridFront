@@ -13,10 +13,14 @@ export const useRestaurantStore = defineStore('restaurant', () => {
 
   const authStore = useAuthStore();
 
-
   const restaurants = ref<Restaurant[]>([]);
   const restaurantSearchResults = ref<Restaurant[]>([]);
 
+  // 1. NUEVAS VARIABLES DE PAGINACIÓN
+  const totalItems = ref<number>(0);
+  const pageItems = ref<number>(0);
+  const totalPages = ref<number>(1);
+  const currentPage = ref<number>(1);
 
   const activeTabsCriteria = ref<OptionTabProps>({});
 
@@ -37,7 +41,15 @@ export const useRestaurantStore = defineStore('restaurant', () => {
     execute: executeFetch
   } = useFetch();
 
-  
+  // FUNCIÓN AUXILIAR PARA ACTUALIZAR LA PAGINACIÓN
+  const setPaginationData = (response: any) => {
+    if (response) {
+      totalItems.value = response.total_items || 0;
+      pageItems.value = response.page_items || 0;
+      totalPages.value = response.total_pages || 1;
+      currentPage.value = response.current_page || 1;
+    }
+  };
 
   const getRestaurant = async () => {
     const token = await authStore.getToken();
@@ -47,8 +59,9 @@ export const useRestaurantStore = defineStore('restaurant', () => {
     await executeFetch(url, options);
 
     if (restaurantResponse.value?.data) {
-
       restaurants.value = restaurantResponse.value.data;
+
+      setPaginationData(restaurantResponse.value);
     }
   };
 
@@ -63,6 +76,8 @@ export const useRestaurantStore = defineStore('restaurant', () => {
 
     if (restaurantResponse.value?.data) {
       restaurantSearchResults.value = restaurantResponse.value.data;
+      setPaginationData(restaurantResponse.value);
+      
       restaurantIdSearchResults = restaurantSearchResults.value.map(restaurant => restaurant.id);
       await router.push({
         name: 'restaurant-detail',
@@ -82,6 +97,8 @@ export const useRestaurantStore = defineStore('restaurant', () => {
 
     if (restaurantResponse.value?.data) {
       restaurants.value = restaurantResponse.value.data;
+      // Actualizar paginación
+      setPaginationData(restaurantResponse.value);
     }
   };
 
@@ -89,12 +106,10 @@ export const useRestaurantStore = defineStore('restaurant', () => {
     return restaurants.value.find((restaurant: Restaurant) => restaurant.id === id);
   };
 
-
  async function setCriteriaFilters(criteria: OptionTabProps): Promise<void> {
     activeTabsCriteria.value = criteria;
     console.log('📦 criteria en store:', JSON.stringify(criteria, null, 2));
 
-    //  Crear un objeto limpio para los parámetros de la URL y de la API
     const queryParams: Record<string, any> = {};
 
     Object.keys(criteria).forEach((key) => {
@@ -113,34 +128,30 @@ export const useRestaurantStore = defineStore('restaurant', () => {
       }
     });
 
-    //  Actualizar la URL con los query params
     await router.push({
       path: router.currentRoute.value.path, 
       query: queryParams 
     });
 
-    //  HACER EL FETCH A LA API CON LOS FILTROS APLICADOS
     try {
       const token = await authStore.getToken();
       if (!token) throw new Error("No se pudo recuperar un token válido para filtrar.");
 
-      // Pasamos el objeto queryParams formateado a tu servicio
       const { url, options } = RestaurantService.getRestaurant(token, queryParams);
 
       await executeFetch(url, options);
 
-      // Actualizar el estado con los datos reales devueltos por el backend
       if (restaurantResponse.value?.data) {
         restaurants.value = restaurantResponse.value.data;
+        // Actualizar paginación
+        setPaginationData(restaurantResponse.value);
       }
     } catch (err) {
       console.error("Error al obtener los restaurantes filtrados:", err);
     }
   }
 
-
   const filteredRestaurants = computed<Restaurant[]>(() => {
-    
     const listaOriginal = restaurants.value;
     const criteria = activeTabsCriteria.value as FilterCriteria;
 
@@ -155,7 +166,6 @@ export const useRestaurantStore = defineStore('restaurant', () => {
         if (!valuesFilter || (Array.isArray(valuesFilter) && valuesFilter.length === 0)) {
           return true;
         }
-
        
         const valorRestaurante = restaurante[key as keyof Restaurant];
 
@@ -168,10 +178,8 @@ export const useRestaurantStore = defineStore('restaurant', () => {
             const valorFiltro = opcion && typeof opcion === 'object'
               ? (opcion.value ?? opcion.id)
               : opcion;
-
          
-            const normalize = (v: unknown) =>
-              String(v).toLowerCase().trim();
+            const normalize = (v: unknown) => String(v).toLowerCase().trim();
 
             if (Array.isArray(valorRestaurante)) {
               return valorRestaurante.map(normalize).includes(normalize(valorFiltro));
@@ -186,19 +194,14 @@ export const useRestaurantStore = defineStore('restaurant', () => {
         }
 
         return String(valorRestaurante).toLowerCase().trim() ===
-          String(valuesFilter).toLowerCase().trim(); // ✅ también aquí
+          String(valuesFilter).toLowerCase().trim();
       });
     });
   });
 
-
   const createRestaurant = async (restaurantData: Partial<Restaurant>) => {
-  
     const storeUser = userStore();
-    
-    
     const { token, csrfToken } = storeToRefs(storeUser);
-
   
     if (!token.value || !csrfToken.value) {
         throw new Error("Permisos insuficientes: No se pudo recuperar un token o CSRF válido.");
@@ -213,20 +216,25 @@ export const useRestaurantStore = defineStore('restaurant', () => {
     await executeFetch(url, options);
 
     if (restaurantResponse.value?.data) {
-        console.log("Restaurante creado con éxito:", restaurantResponse.value.data);
         restaurants.value.push(restaurantResponse.value.data);
-        
         return { data: restaurantResponse.value.data }; 
     }
     
     throw new Error("No se recibió respuesta del servidor al crear el restaurante.");
-};
+  };
 
   return {
     filters,
     restaurants,
     filteredRestaurants,
     restaurantSearchResults,
+    
+
+    totalItems: readonly(totalItems),
+    pageItems: readonly(pageItems),
+    totalPages: readonly(totalPages),
+    currentPage: readonly(currentPage),
+    
     error: readonly(apiError),
     loading: readonly(apiLoading),
     getRestaurant,
