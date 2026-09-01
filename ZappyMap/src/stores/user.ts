@@ -23,7 +23,7 @@ export const userStore = defineStore('user', () => {
         error: loginError,
         headers: loginHeaders,
         execute: executeLogin
-    } = useFetch(); 
+    } = useFetch();
 
     // INSTANCIA PARA EL CSRF 
     const {
@@ -48,16 +48,23 @@ export const userStore = defineStore('user', () => {
         execute: executeUpload
     } = useFetch();
 
+    const {
+        data: dataLogout,
+        loading: loadingLogout,
+        error: logoutError,
+        execute: executeLogout
+    } = useFetch();
+
 
     const dataMemory = computed(() => loginData.value);
 
-  
+
     const uploadImage = async (restaurantId: string, formData: FormData) => {
         if (!token.value || !csrfToken.value) {
             return { success: false, message: "Permisos insuficientes para subir la imagen." };
         }
 
-     
+
         const uploadConfig = UserService.uploadImage(
             restaurantId,
             formData,
@@ -68,7 +75,7 @@ export const userStore = defineStore('user', () => {
 
         await executeUpload(uploadConfig.url, uploadConfig.options);
 
-        
+
         if (uploadError.value) {
             console.error("Error al subir la imagen:", uploadError.value);
             return { success: false, message: uploadError.value.message };
@@ -80,13 +87,13 @@ export const userStore = defineStore('user', () => {
     const fetchCsrf = async (): Promise<boolean> => {
         const csrfOptions = {
             method: 'GET',
-            credentials: 'include' as RequestCredentials, 
+            credentials: 'include' as RequestCredentials,
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             }
         };
-   
+
         await executeCsrf('/api/v1/csrf', csrfOptions);
 
         if (csrfError.value) {
@@ -97,7 +104,7 @@ export const userStore = defineStore('user', () => {
         const incomingCsrf = csrfHeaders.value?.get('x-new-csrf-token') || csrfHeaders.value?.get('x-csrf-token');
 
         if (incomingCsrf) {
-            setCsrf(incomingCsrf); 
+            setCsrf(incomingCsrf);
             return true;
         }
 
@@ -114,24 +121,24 @@ export const userStore = defineStore('user', () => {
         }
 
         const loginConfig = UserService.userLoginConfig(
-            credentials, 
-            null, 
-            csrfToken.value 
+            credentials,
+            null,
+            csrfToken.value
         );
 
         // Usamos el ejecutor del Login
         await executeLogin(loginConfig.url, loginConfig.options);
-   
+
         if (loginError.value) {
-            return { 
-                success: false, 
+            return {
+                success: false,
                 message: loginError.value?.message || "Ocurrió un error al iniciar sesión."
             };
         }
 
         const rotatedCsrf = loginHeaders.value?.get('x-new-csrf-token') || loginHeaders.value?.get('x-csrf-token');
         if (rotatedCsrf) {
-            setCsrf(rotatedCsrf); 
+            setCsrf(rotatedCsrf);
         }
 
         const receivedToken = loginData.value?.data?.user?.token;
@@ -142,42 +149,48 @@ export const userStore = defineStore('user', () => {
 
         token.value = receivedToken;
         localStorage.setItem('user_jwt', receivedToken);
-        
+
         const apiSuccessMessage = loginData.value?.message || "Login correcto";
 
-        return { 
-            success: true, 
-            message: apiSuccessMessage 
-        }; 
+        return {
+            success: true,
+            message: apiSuccessMessage
+        };
     }
 
-    const logoutLocal = () => {
+   
+
+
+    const logoutUser = async() => {
+
+        const logoutOption=UserService.logoutUserConfig(token.value,csrfToken.value)
+        await executeLogout(logoutOption.url,logoutOption.options)
+
+        if(logoutError.value){
+             return {
+                success: false,
+                message: logoutError.value?.message || "Ocurrió un error al cerrar sesion"
+            };
+        }
+
         token.value = null;
         csrfToken.value = null;
         localStorage.removeItem('user_jwt');
         sessionStorage.removeItem('csrf_token');
-        
-        router.push({ name: 'user-login' });
-    };
 
-
-    const logoutUser = () => {
-        token.value = null;
-        csrfToken.value = null;
-        localStorage.removeItem('user_jwt');
-        sessionStorage.removeItem('csrf_token');
-        
         router.push({ name: 'user-login' });
+
+        return { success: true, data: dataLogout.value };
     };
 
     const refreshSession = async (): Promise<boolean> => {
         const refreshOptions = {
             method: 'POST',
-            credentials: 'include' as RequestCredentials, 
+            credentials: 'include' as RequestCredentials,
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
-                'x-csrf-token': csrfToken.value || '' 
+                'x-csrf-token': csrfToken.value || ''
             }
         };
 
@@ -185,23 +198,23 @@ export const userStore = defineStore('user', () => {
 
         if (refreshError.value) {
             console.warn("No se pudo renovar la sesión. Expulsando...");
-            logoutLocal();
+            logoutUser();
             return false;
         }
 
         const receivedToken = refreshData.value?.data?.user?.token;
-        
+
         if (receivedToken) {
             token.value = receivedToken;
             localStorage.setItem('user_jwt', receivedToken);
         } else {
-            logoutLocal();
+            logoutUser();
             return false;
         }
 
         const rotatedCsrf = refreshHeaders.value?.get('x-new-csrf-token') || refreshHeaders.value?.get('x-csrf-token');
         if (rotatedCsrf) {
-            setCsrf(rotatedCsrf); 
+            setCsrf(rotatedCsrf);
         }
 
         console.log("¡Sesión renovada con éxito!");
@@ -209,18 +222,18 @@ export const userStore = defineStore('user', () => {
     };
 
     return {
-        data: dataMemory, 
-        token, 
+        data: dataMemory,
+        token,
         csrfToken: readonly(csrfToken),
         error: readonly(loginError),
         loading: readonly(loginLoading),
-        uploadLoading: readonly(uploadLoading), 
+        uploadLoading: readonly(uploadLoading),
+        logoutLoading:readonly(loadingLogout),
         isLogged: readonly(isLogged),
         login,
         fetchCsrf,
-        refreshSession, 
-        logoutLocal,   
-        logoutUser, 
+        refreshSession,
+        logoutUser,
         setCsrf,
         uploadImage
     };

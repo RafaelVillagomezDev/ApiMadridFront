@@ -2,7 +2,8 @@ const API_ENDPOINTS = {
   USER_TOKEN: "/api/v1/user/token",
   USER_LOGIN: "/api/v1/user/login",
   USER_REGISTER: "/api/v1/user/register",
-  UPLOAD_IMAGE: "/api/v1/image/create/restaurant/"
+  UPLOAD_IMAGE: "/api/v1/image/create/restaurant/",
+  LOGOUT_USER:"/api/v1/user/logout"
 };
 
 export const UserService = {
@@ -45,6 +46,19 @@ export const UserService = {
           ...(csrfToken ? { "X-CSRF-Token": csrfToken } : {})
         },
         body: JSON.stringify(data)
+      },
+    }),
+
+  logoutUserConfig: (token?: string | null,
+    csrfToken?: string | null) => ({
+      url: API_ENDPOINTS.LOGOUT_USER,
+      options: {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          ...(csrfToken ? { "X-CSRF-Token": csrfToken } : {})
+        }
       },
     }),
 
