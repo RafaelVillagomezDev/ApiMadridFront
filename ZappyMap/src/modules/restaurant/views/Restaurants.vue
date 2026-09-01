@@ -5,10 +5,6 @@ import FilterTab from "@/core/components/base/FilterTab.vue";
 import GridCard from "@/core/components/base/GridCard.vue";
 import Paginator from '@/core/components/paginator/paginator.vue';
 
-
-
-// import Spinner from "@/core/components/base/Spinner.vue"; 
-
 import { useFavouritesStore } from "@/stores/favourites";
 import { useRestaurantStore } from "@/stores/restaurant";
 import type { OptionTab, OptionTabPropsData } from "@/types/options-type";
@@ -20,24 +16,24 @@ import { computed, ref } from "vue";
 const storeRestaurant = useRestaurantStore();
 const storeFavourites = useFavouritesStore();
 
-// Extraemos loading y error directamente del store
-const { restaurants, filteredRestaurants, loading, error,totalItems,pageItems,totalPages,currentPage } = storeToRefs(storeRestaurant);
+// Extraemos las variables del store
+const { restaurants, filteredRestaurants, loading, error, totalItems, pageItems, totalPages, currentPage } = storeToRefs(storeRestaurant);
 
 const textQuantity = computed(() => {
-  const count = restaurants.value.length;
+  const count = totalItems.value;
   return count === 1 ? "restaurante" : "restaurantes";
 });
 
 const bannerData = computed(() => ({
   titleStart: "Tenemos",
   titleEnd: "más de ",
-  titleHighlight: `${restaurants.value.length} ${textQuantity.value}.`,
+  titleHighlight: `${totalItems.value} ${textQuantity.value}.`,
   subtitle: "¡Explora y encuentra tu próximo lugar favorito para comer!",
 }));
 
-const categorias: OptionTab[] = [
+const categorias = ref<OptionTab[]>([
   {
-    isOpen: false,
+    isOpen: false, 
     data: [
       {
         categoria: "Tipo de comida",
@@ -66,7 +62,7 @@ const categorias: OptionTab[] = [
       }
     ]
   }
-];
+]);
 
 function handleToggleFavourite(item: Restaurant | undefined) {
   if (!item) return;
@@ -78,23 +74,17 @@ const isFav = (item: Restaurant | undefined) => {
   return storeFavourites.isFavourite(item.id);
 };
 
-
-
 type CriteriosFiltroInput = Record<string, OptionTabPropsData[] | number | string>;
-
-
 const filtrosActivos = ref<Record<string, OptionTabPropsData[]>>({ type_food: [], price: [] });
-
 
 const fetchDataRestaurantByFilter = async (valores: Record<string, OptionTabPropsData[]>) => {
   try {
-    // Guardamos los filtros puros localmente (por si el paginador los necesita)
     filtrosActivos.value = valores;
     
-    // Creamos un nuevo objeto combinando los filtros y reseteando a la página 1
     const parametrosConPaginacion: CriteriosFiltroInput = {
       ...valores,
       page: 1, 
+      limit: 3 
     };
 
     await storeRestaurant.setCriteriaFilters(parametrosConPaginacion);
@@ -103,8 +93,28 @@ const fetchDataRestaurantByFilter = async (valores: Record<string, OptionTabProp
   }
 };
 
+const handlePageChange = async (newPage: number) => {
+  try {
+    const parametrosConPaginacion: CriteriosFiltroInput = {
+      ...filtrosActivos.value,
+      page: newPage,
+      limit: 3
+    };
+    await storeRestaurant.setCriteriaFilters(parametrosConPaginacion);
+  } catch (err) {
+    console.error("Error al cambiar de página:", err);
+  }
+};
 
-
+// 🔥Computed bidireccional para el v-model
+const currentPageModel = computed({
+ 
+  get: () => currentPage.value,
+  // Cuando el paginador intenta cambiar la página, ejecutamos la función de la API
+  set: (newValue: number) => {
+    handlePageChange(newValue);
+  }
+});
 
 </script>
 
@@ -115,19 +125,13 @@ const fetchDataRestaurantByFilter = async (valores: Record<string, OptionTabProp
 
   <FilterTab :isOpen="true" :data="categorias" @update:selection="fetchDataRestaurantByFilter" />
 
-  <!-- CONTENEDOR RELATIVO PARA MANEJAR EL OVERLAY -->
   <div class="relative min-h-[300px]">
     
-    <!-- ESTADO DE CARGA (Overlay superpuesto) -->
-
-    <div 
-      v-if="loading" 
-      class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/60 backdrop-blur-[2px] transition-all duration-300 rounded-lg"
-    >
+    <!-- ESTADOS DE CARGA Y ERROR ... -->
+    <div v-if="loading" class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/60 backdrop-blur-[2px] transition-all duration-300 rounded-lg">
       <div class="animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-gray-800"></div>
     </div>
 
-    <!-- ESTADO DE ERROR -->
     <div v-if="error" class="flex flex-col items-center justify-center py-20 space-y-2">
       <div class="text-red-500 text-4xl">⚠️</div>
       <h3 class="text-lg font-bold text-gray-800">Ocurrió un error</h3>
@@ -137,14 +141,11 @@ const fetchDataRestaurantByFilter = async (valores: Record<string, OptionTabProp
       </button>
     </div>
 
-    <!-- ESTADO VACÍO (SIN RESULTADOS) -->
     <div v-else-if="!loading && filteredRestaurants && filteredRestaurants.length === 0" class="flex flex-col items-center justify-center py-20">
       <span class="text-4xl">🍽️</span>
       <h3 class="mt-4 text-lg font-bold text-gray-800">Sin resultados</h3>
       <p class="text-gray-500">No encontramos restaurantes que coincidan con tus filtros.</p>
     </div>
-
-    <!-- ESTADO DE ÉXITO -->
    
     <GridCard v-else-if="filteredRestaurants && filteredRestaurants.length > 0">
       <Card 
@@ -171,13 +172,13 @@ const fetchDataRestaurantByFilter = async (valores: Record<string, OptionTabProp
         </template>
       </Card>
     </GridCard>
-   <Paginator 
-    :total-items="totalItems"
-    :page-items="pageItems"
-    :total-pages="totalPages"
-    :current-page="currentPage"
-    :filtered-restaurants="filteredRestaurants"
-    @change-page="fetchDataRestaurantByFilter (filtrosActivos)"
-  />
+
+
+    <Paginator 
+      :total-items="totalItems"
+      :page-items="pageItems"
+      :total-pages="totalPages"
+      v-model:current-page="currentPageModel"
+    />
   </div>
 </template>

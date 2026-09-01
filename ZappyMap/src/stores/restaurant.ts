@@ -151,53 +151,7 @@ export const useRestaurantStore = defineStore('restaurant', () => {
     }
   }
 
-  const filteredRestaurants = computed<Restaurant[]>(() => {
-    const listaOriginal = restaurants.value;
-    const criteria = activeTabsCriteria.value as FilterCriteria;
-
-    if (!criteria || Object.keys(criteria).length === 0) {
-      return listaOriginal;
-    }
-
-    return listaOriginal.filter((restaurante) => {
-      return Object.keys(criteria).every((key) => {
-        const valuesFilter = criteria[key];
-
-        if (!valuesFilter || (Array.isArray(valuesFilter) && valuesFilter.length === 0)) {
-          return true;
-        }
-       
-        const valorRestaurante = restaurante[key as keyof Restaurant];
-
-        if (valorRestaurante === undefined || valorRestaurante === null) {
-          return false;
-        }
-
-        if (Array.isArray(valuesFilter)) {
-          return valuesFilter.some((opcion) => {
-            const valorFiltro = opcion && typeof opcion === 'object'
-              ? (opcion.value ?? opcion.id)
-              : opcion;
-         
-            const normalize = (v: unknown) => String(v).toLowerCase().trim();
-
-            if (Array.isArray(valorRestaurante)) {
-              return valorRestaurante.map(normalize).includes(normalize(valorFiltro));
-            }
-
-            return normalize(valorRestaurante) === normalize(valorFiltro);
-          });
-        }
-
-        if (Array.isArray(valorRestaurante)) {
-          return valorRestaurante.includes(valuesFilter);
-        }
-
-        return String(valorRestaurante).toLowerCase().trim() ===
-          String(valuesFilter).toLowerCase().trim();
-      });
-    });
-  });
+const filteredRestaurants = computed<Restaurant[]>(() => restaurants.value);
 
   const createRestaurant = async (restaurantData: Partial<Restaurant>) => {
     const storeUser = userStore();

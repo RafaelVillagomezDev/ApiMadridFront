@@ -1,50 +1,49 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-// Recibimos los datos desde el componente padre (o store)
+// 1. Recibimos las props (se mantienen igual)
 const props = defineProps<{
   currentPage: number;
   totalPages: number;
 }>();
 
+
 const emit = defineEmits<{
-  (e: 'change-page', page: number): void
+  (e: 'update:currentPage', page: number): void
 }>();
 
-//  Lógica para calcular las páginas visibles con puntos suspensivos
+// Lógica para calcular las páginas visibles con puntos suspensivos
 const visiblePages = computed(() => {
   const current = props.currentPage;
   const total = props.totalPages;
 
-  // Si hay 5 páginas o menos, las mostramos todas sin puntos suspensivos
   if (total <= 5) {
     return Array.from({ length: total }, (_, i) => i + 1);
   }
 
-  // Si estamos cerca del principio (ej: pág 1, 2 o 3)
   if (current <= 3) {
     return [1, 2, 3, 4, '...', total];
   } 
-  // Si estamos cerca del final (ej: pág 6, 7 u 8 de 8)
   else if (current >= total - 2) {
     return [1, '...', total - 3, total - 2, total - 1, total];
   } 
-  // Si estamos en el medio (ej: pág 4 o 5 de 8)
   else {
     return [1, '...', current - 1, current, current + 1, '...', total];
   }
 });
 
-// Manejador de clics (ignora los clics en los puntos suspensivos)
+// Manejador de clics
 const changePage = (page: number | string) => {
   if (typeof page === 'number' && page >= 1 && page <= props.totalPages && page !== props.currentPage) {
-    emit('change-page', page);
+ 
+    emit('update:currentPage', page);
   }
 };
 </script>
 
 <template>
-  <div class="flex items-center justify-center py-10 lg:px-0 sm:px-6 px-4">
+
+  <div v-if="totalPages > 1" class="flex items-center justify-center py-10 lg:px-0 sm:px-6 px-4">
     <div class="lg:w-3/5 w-full flex items-center justify-between border-t border-gray-200 pt-4">
       
       <!-- Botón Anterior -->
@@ -63,10 +62,8 @@ const changePage = (page: number | string) => {
 
       <!-- Números de Paginación dinámicos -->
       <div class="sm:flex hidden items-center gap-1">
-
         <template v-for="(page, index) in visiblePages" :key="index">
           
-      
           <p 
             v-if="typeof page === 'number'"
             @click="changePage(page)"
@@ -80,7 +77,6 @@ const changePage = (page: number | string) => {
             {{ page }}
           </p>
           
-
           <span 
             v-else
             class="text-sm font-medium leading-none px-2 py-2 text-gray-400 cursor-default select-none"
