@@ -59,6 +59,21 @@ export const RestaurantService = {
     };
 
   },
+  getRestaurantById: (
+    id: string,
+    token?: string | null,
+    csrfToken?: string | null
+  ) => ({
+    url: `${API_ENDPOINTS.RESTAURANT}/${encodeURIComponent(id)}`,
+    options: {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(csrfToken ? { "X-CSRF-Token": csrfToken } : {})
+      }
+    }
+  }),
   createRestaurant: (token: string | null, csrfToken: string | null, restaurantData: any) => {
     return {
       url: `${API_ENDPOINTS.RESTAURANT + "create"}`,

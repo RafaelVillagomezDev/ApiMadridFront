@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { computed, readonly, ref } from 'vue';
 import { storeToRefs } from 'pinia';
-import { userStore } from '@/stores/user'; 
+import { userStore } from '@/stores/user';
 import { RestaurantService } from "@/core/services/api-restaurant.service";
 import { useAuthStore } from "./auth";
 import { useFetch } from "@/core/composables/useFetch";
@@ -77,7 +77,7 @@ export const useRestaurantStore = defineStore('restaurant', () => {
     if (restaurantResponse.value?.data) {
       restaurantSearchResults.value = restaurantResponse.value.data;
       setPaginationData(restaurantResponse.value);
-      
+
       restaurantIdSearchResults = restaurantSearchResults.value.map(restaurant => restaurant.id);
       await router.push({
         name: 'restaurant-detail',
@@ -102,11 +102,44 @@ export const useRestaurantStore = defineStore('restaurant', () => {
     }
   };
 
-  const getRestaurantById = (id: string): Restaurant | undefined => {
-    return restaurants.value.find((restaurant: Restaurant) => restaurant.id === id);
+  const getRestaurantById = async (id: string): Promise<Restaurant | undefined> => {
+
+    const existingRestaurant = restaurants.value.find(
+      (restaurant: Restaurant) => restaurant.id === id
+    );
+
+    if (existingRestaurant) {
+      return existingRestaurant;
+    }
+
+
+    try {
+      const token = await authStore.getToken();
+      if (!token) throw new Error("No se pudo recuperar un token válido.");
+
+
+      const { url, options } = RestaurantService.getRestaurantById(id, token);
+
+      await executeFetch(url, options);
+
+
+      const fetchedRestaurant: Restaurant | undefined =
+        restaurantResponse.value?.data ?? restaurantResponse.value;
+
+      if (fetchedRestaurant) {
+
+        restaurants.value.push(fetchedRestaurant);
+        return fetchedRestaurant;
+      }
+
+      return undefined;
+    } catch (err) {
+      console.error(`Error al obtener el restaurante con id ${id}:`, err);
+      throw err;
+    }
   };
 
- async function setCriteriaFilters(criteria: OptionTabProps): Promise<void> {
+  async function setCriteriaFilters(criteria: OptionTabProps): Promise<void> {
     activeTabsCriteria.value = criteria;
     console.log('📦 criteria en store:', JSON.stringify(criteria, null, 2));
 
@@ -116,11 +149,11 @@ export const useRestaurantStore = defineStore('restaurant', () => {
       const valuesFilter = criteria[key as keyof OptionTabProps] as any;
 
       if (!valuesFilter || (Array.isArray(valuesFilter) && valuesFilter.length === 0)) {
-        return; 
+        return;
       }
 
       if (Array.isArray(valuesFilter)) {
-        queryParams[key] = valuesFilter.map((opcion) => 
+        queryParams[key] = valuesFilter.map((opcion) =>
           opcion && typeof opcion === 'object' ? (opcion.value ?? opcion.id) : opcion
         );
       } else {
@@ -129,8 +162,8 @@ export const useRestaurantStore = defineStore('restaurant', () => {
     });
 
     await router.push({
-      path: router.currentRoute.value.path, 
-      query: queryParams 
+      path: router.currentRoute.value.path,
+      query: queryParams
     });
 
     try {
@@ -151,29 +184,29 @@ export const useRestaurantStore = defineStore('restaurant', () => {
     }
   }
 
-const filteredRestaurants = computed<Restaurant[]>(() => restaurants.value);
+  const filteredRestaurants = computed<Restaurant[]>(() => restaurants.value);
 
   const createRestaurant = async (restaurantData: Partial<Restaurant>) => {
     const storeUser = userStore();
     const { token, csrfToken } = storeToRefs(storeUser);
-  
+
     if (!token.value || !csrfToken.value) {
-        throw new Error("Permisos insuficientes: No se pudo recuperar un token o CSRF válido.");
+      throw new Error("Permisos insuficientes: No se pudo recuperar un token o CSRF válido.");
     }
 
     const { url, options } = RestaurantService.createRestaurant(
-        token.value, 
-        csrfToken.value, 
-        restaurantData
+      token.value,
+      csrfToken.value,
+      restaurantData
     );
-    
+
     await executeFetch(url, options);
 
     if (restaurantResponse.value?.data) {
-        restaurants.value.push(restaurantResponse.value.data);
-        return { data: restaurantResponse.value.data }; 
+      restaurants.value.push(restaurantResponse.value.data);
+      return { data: restaurantResponse.value.data };
     }
-    
+
     throw new Error("No se recibió respuesta del servidor al crear el restaurante.");
   };
 
@@ -182,13 +215,13 @@ const filteredRestaurants = computed<Restaurant[]>(() => restaurants.value);
     restaurants,
     filteredRestaurants,
     restaurantSearchResults,
-    
+
 
     totalItems: readonly(totalItems),
     pageItems: readonly(pageItems),
     totalPages: readonly(totalPages),
     currentPage: readonly(currentPage),
-    
+
     error: readonly(apiError),
     loading: readonly(apiLoading),
     getRestaurant,
