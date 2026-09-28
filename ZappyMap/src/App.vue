@@ -24,7 +24,7 @@ const routesWithoutLayout = [
   { name: 'user-login' }
 ];
 
-// 👇 Añadido | null | undefined para evitar errores de TS
+
 const checkRouteNeedsHide = (currentRouteName: RouteRecordNameGeneric | null | undefined) => {
   return routesWithoutLayout.some(routeObj => routeObj.name === currentRouteName);
 };
