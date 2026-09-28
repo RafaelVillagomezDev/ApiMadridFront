@@ -2,7 +2,7 @@ import { getFullUrl } from "@core/utils/getFullUrl";
 import type { FiltersRestaurant } from "@/types/router-types";
 
 const API_ENDPOINTS = {
-  RESTAURANT: "/api/v1/restaurant/",
+  RESTAURANT: "/api/v1/restaurant",
 };
 
 export const RestaurantService = {
@@ -31,9 +31,9 @@ export const RestaurantService = {
     });
 
     const queryString = params.toString();
-    const basePath = queryString
-      ? `${API_ENDPOINTS.RESTAURANT}?${queryString}`
-      : API_ENDPOINTS.RESTAURANT;
+   const basePath = queryString
+  ? `${API_ENDPOINTS.RESTAURANT}/?${queryString}`
+  : API_ENDPOINTS.RESTAURANT;
 
     return {
       url: getFullUrl(basePath),
