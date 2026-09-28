@@ -5,11 +5,11 @@ FROM node:20-alpine AS build-stage
 
 WORKDIR /app
 
-# Copiamos los archivos de configuración y dependencias
-COPY package.json package-lock.json ./
+# Copiamos únicamente el package.json (evita errores si el lockfile no subió)
+COPY package.json ./
 
-# Instalamos las dependencias con npm de manera limpia
-RUN npm ci
+# Instalamos las dependencias con npm (genera el lockfile automáticamente si falta)
+RUN npm install
 
 # Copiamos el resto del código fuente
 COPY . .
