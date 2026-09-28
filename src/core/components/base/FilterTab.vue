@@ -1,55 +1,65 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
-import { Star } from "lucide-vue-next";
-import { Utensils, CircleChevronDown, CircleChevronUp, HandCoins } from "lucide-vue-next";
+import { Star, Utensils, CircleChevronDown, CircleChevronUp, HandCoins } from "lucide-vue-next";
 import OptionsTab from "./OptionsTab.vue";
 import type { OptionTab } from "@/types/options-type";
 import Seeker from "./Seeker.vue";
-const isActive = ref(false);
-const isActivePrice = ref(false);
 
 const props = defineProps<{
   data: OptionTab[];
 }>();
 
-const seleccion = ref([]);
-const seleccionPrice = ref([]);
+const isActive = ref(false);
+const isActivePrice = ref(false);
+
+
+const seleccion = ref<any[]>([]);
+const seleccionPrice = ref<any[]>([]);
+
+// 2. FIX UX: Funciones para alternar los menús cerrando el otro
+const toggleComida = () => {
+  isActive.value = !isActive.value;
+  if (isActive.value) isActivePrice.value = false;
+};
+
+const togglePrice = () => {
+  isActivePrice.value = !isActivePrice.value;
+  if (isActivePrice.value) isActive.value = false;
+};
+
 const limpiarFiltros = () => {
   seleccion.value = [];
   seleccionPrice.value = [];
+  // Opcional pero recomendado: cerrar menús al limpiar
+  isActive.value = false;
+  isActivePrice.value = false;
 };
 
-
-// 1. Definimos el emit para el "Abuelo"
 const emit = defineEmits<{
   (e: 'update:selection', value: { type_food: any[]; price: any[] }): void;
 }>();
 
 watch([seleccion, seleccionPrice], ([nuevaComida, nuevoPrecio]) => {
-
   emit('update:selection', {
     type_food: nuevaComida,
     price: nuevoPrecio
   });
-
 }, { deep: true });
-
 </script>
 
 <template>
-  <section
-    class="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-100 shadow-sm px-3 py-3 sm:px-4 md:px-6 md:py-4">
+  <section class="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-100 shadow-sm px-3 py-3 sm:px-4 md:px-6 md:py-4">
     <div class="flex flex-wrap gap-2 sm:gap-3 items-center">
 
-      <button
-        class="px-3 py-1.5 md:px-4 md:py-2 bg-gray-100 rounded-full text-xs md:text-sm font-medium text-gray-700 hover:bg-gray-200 transition-colors">
+      <button class="px-3 py-1.5 md:px-4 md:py-2 bg-gray-100 rounded-full text-xs md:text-sm font-medium text-gray-700 hover:bg-gray-200 transition-colors">
         <span class="inline-flex items-center gap-x-1">
           <Star :size="15" class="w-3.5 h-3.5 md:w-[15px] md:h-[15px]" /> Mejor valorados
         </span>
       </button>
 
       <div class="relative">
-        <button @click="isActive = !isActive"
+        <!-- Uso de la nueva función toggleComida -->
+        <button @click="toggleComida"
           class="px-3 py-1.5 md:px-4 md:py-2 bg-gray-100 rounded-full text-xs md:text-sm font-medium text-gray-700 transition-colors inline-flex items-center gap-x-1 hover:bg-gray-200">
           <span class="inline-flex items-center gap-x-1">
             <Utensils :size="15" class="w-3.5 h-3.5 md:w-[15px] md:h-[15px]" /> Tipo de comida
@@ -64,7 +74,8 @@ watch([seleccion, seleccionPrice], ([nuevaComida, nuevoPrecio]) => {
       </div>
 
       <div class="relative">
-        <button @click="isActivePrice = !isActivePrice"
+        <!-- Uso de la nueva función togglePrice -->
+        <button @click="togglePrice"
           class="px-3 py-1.5 md:px-4 md:py-2 bg-gray-100 rounded-full text-xs md:text-sm font-medium text-gray-700 transition-colors inline-flex items-center gap-x-1 hover:bg-gray-200">
           <span class="inline-flex items-center gap-x-1">
             <HandCoins :size="15" class="w-3.5 h-3.5 md:w-[15px] md:h-[15px]" /> Precio
@@ -84,7 +95,6 @@ watch([seleccion, seleccionPrice], ([nuevaComida, nuevoPrecio]) => {
       </button>
 
       <Seeker class="w-full md:w-auto md:ml-auto" />
-
     </div>
   </section>
 </template>
