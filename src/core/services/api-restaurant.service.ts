@@ -67,7 +67,7 @@ export const RestaurantService = {
 
   createRestaurant: (token: string | null, csrfToken: string | null, restaurantData: any) => {
     return {
-      url: getFullUrl(`${API_ENDPOINTS.RESTAURANT}create`),
+      url: getFullUrl(`${API_ENDPOINTS.RESTAURANT}/create`),
       options: {
         method: "POST",
         headers: {

@@ -5,7 +5,7 @@ const API_ENDPOINTS = {
   USER_TOKEN: "/api/v1/user/token",
   USER_LOGIN: "/api/v1/user/login",
   USER_REGISTER: "/api/v1/user/register",
-  UPLOAD_IMAGE: "/api/v1/image/create/restaurant/",
+  UPLOAD_IMAGE: "/api/v1/image/create/restaurant",
   LOGOUT_USER: "/api/v1/user/logout"
 };
 
@@ -19,7 +19,7 @@ export const UserService = {
     csrfToken?: string | null
   ) => ({
     // Usamos la función para que anteponga /api (en local) o https://api.yandrydev.cloud (en prod)
-    url: getFullUrl(`${API_ENDPOINTS.UPLOAD_IMAGE}${restaurantId}`),
+    url: getFullUrl(`${API_ENDPOINTS.UPLOAD_IMAGE}/${restaurantId}`),
     options: {
       method: "POST",
       body: formData,
