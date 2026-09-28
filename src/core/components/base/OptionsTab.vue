@@ -2,19 +2,19 @@
 import type { OptionTabProps } from "@/types/options-type";
 import { computed } from "vue";
 
-// 1. Definimos las props normales
+// Definimos las props normales
 const props = defineProps<{
   data: OptionTabProps[];
   isOpen: boolean;
 }>();
 
-// 2. Definimos el modelo para los valores seleccionados
-const selected = defineModel<(string | number | boolean)[]>({ default: [] });
 
-// 3. Extraemos el bloque actual de forma segura
+const selected = defineModel<(string | number | boolean)[]>({ default: () => [] });
+
+
 const bloqueActual = computed(() => props.data?.[0]);
 
-// 4. Extraemos el título de la categoría dinámicamente
+//  Extraemos el título de la categoría dinámicamente
 const nombreCategoria = computed(() => {
   if (!bloqueActual.value) return "Filtros";
   // Buscamos la propiedad que sea un string (ej: 'TypeFood' o 'Precio')
@@ -22,7 +22,7 @@ const nombreCategoria = computed(() => {
   return stringProp || "Filtros";
 });
 
-// 5. Extraemos el array interno de opciones
+//  Extraemos el array interno de opciones
 const opcionesFiltradas = computed(() => {
   if (!bloqueActual.value) return [];
   const listaOpciones = Object.values(bloqueActual.value).find(val => Array.isArray(val));
