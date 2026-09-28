@@ -11,7 +11,7 @@ COPY package.json ./
 # Instalamos las dependencias ignorando conflictos estrictos de peer dependencies
 RUN npm install --legacy-peer-deps
 
-# Copiamos el resto del código fuente
+# Copiamos el resto del código fuente (el .dockerignore protegerá la carpeta node_modules)
 COPY . .
 
 # Recibimos la variable de entorno desde Dokploy
