@@ -1,19 +1,17 @@
-
+import { getFullUrl } from "@core/utils/getFullUrl";
 
 const API_ENDPOINTS = {
   ANONYMUS_TOKEN: "/api/v1/anonymous/token",
-
 };
  
 export const AuthService = {
   getTokenConfig: () => ({
-    url: API_ENDPOINTS.ANONYMUS_TOKEN,
+    url: getFullUrl(API_ENDPOINTS.ANONYMUS_TOKEN),
     options: {
-      method: "POST", headers: {
-        "Content-Type": "application/json",  // Aplicamos el Bearer solo si existe el token
+      method: "POST", 
+      headers: {
+        "Content-Type": "application/json",
       }
     },
   })
 };
-
-

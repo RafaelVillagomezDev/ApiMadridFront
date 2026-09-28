@@ -28,11 +28,11 @@ export default defineConfig({
     },
   },
   
-  // 🔥 AQUÍ ESTÁ EL PROXY AÑADIDO
+  // Proxy para desarrollo (redirige /api a http://localhost:3000)
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:3000', // El puerto de tu backend Node/Express
+        target: 'http://localhost:3000',
         changeOrigin: true,
       },
     },
@@ -42,8 +42,6 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
-    // Esto asegura que busque en tus nuevas carpetas __tests__
     include: ['src/**/__tests__/**/*.{test,spec}.ts'],
   },
-
 })

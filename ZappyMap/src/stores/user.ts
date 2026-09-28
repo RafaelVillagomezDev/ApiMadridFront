@@ -1,4 +1,5 @@
 import { useFetch } from "@/core/composables/useFetch";
+import { getFullUrl } from "@core/utils/getFullUrl"; // 👈 Importamos la utilidad de entornos
 import router from "@/core/router/routes";
 import { UserService } from "@/core/services/api-user.service";
 import { defineStore } from "pinia";
@@ -9,7 +10,6 @@ export const userStore = defineStore('user', () => {
     const token = ref<string | null>(localStorage.getItem('user_jwt'));
     const csrfToken = ref<string | null>(sessionStorage.getItem('csrf_token'));
     const isLogged = computed(() => !!token.value);
-
 
     const setCsrf = (newToken: string) => {
         csrfToken.value = newToken;
@@ -48,22 +48,20 @@ export const userStore = defineStore('user', () => {
         execute: executeUpload
     } = useFetch();
 
+    // INSTANCIA PARA LOGOUT
     const {
         data: dataLogout,
-        loading: loadingLogout,
+        loading: logoutLoading, // Renombrado para claridad
         error: logoutError,
-        execute: executeLogout
+        execute: executeLogoutCall // Renombrado para evitar pisar la función del store
     } = useFetch();
 
-
     const dataMemory = computed(() => loginData.value);
-
 
     const uploadImage = async (restaurantId: string, formData: FormData) => {
         if (!token.value || !csrfToken.value) {
             return { success: false, message: "Permisos insuficientes para subir la imagen." };
         }
-
 
         const uploadConfig = UserService.uploadImage(
             restaurantId,
@@ -72,9 +70,7 @@ export const userStore = defineStore('user', () => {
             csrfToken.value
         );
 
-
         await executeUpload(uploadConfig.url, uploadConfig.options);
-
 
         if (uploadError.value) {
             console.error("Error al subir la imagen:", uploadError.value);
@@ -94,7 +90,8 @@ export const userStore = defineStore('user', () => {
             }
         };
 
-        await executeCsrf('/api/v1/csrf', csrfOptions);
+        // 👈 Usamos getFullUrl para que funcione en local y producción
+        await executeCsrf(getFullUrl('/api/v1/csrf'), csrfOptions);
 
         if (csrfError.value) {
             console.error("Error al obtener el CSRF:", csrfError.value);
@@ -113,7 +110,6 @@ export const userStore = defineStore('user', () => {
     };
 
     const login = async (credentials: { email: string; password: string }) => {
-
         const csrfSuccess = await fetchCsrf();
 
         if (!csrfSuccess) {
@@ -126,7 +122,6 @@ export const userStore = defineStore('user', () => {
             csrfToken.value
         );
 
-        // Usamos el ejecutor del Login
         await executeLogin(loginConfig.url, loginConfig.options);
 
         if (loginError.value) {
@@ -156,20 +151,16 @@ export const userStore = defineStore('user', () => {
             success: true,
             message: apiSuccessMessage
         };
-    }
+    };
 
-   
+    const logoutUser = async () => {
+        const logoutOption = UserService.logoutUserConfig(token.value, csrfToken.value);
+        await executeLogoutCall(logoutOption.url, logoutOption.options);
 
-
-    const logoutUser = async() => {
-
-        const logoutOption=UserService.logoutUserConfig(token.value,csrfToken.value)
-        await executeLogout(logoutOption.url,logoutOption.options)
-
-        if(logoutError.value){
-             return {
+        if (logoutError.value) {
+            return {
                 success: false,
-                message: logoutError.value?.message || "Ocurrió un error al cerrar sesion"
+                message: logoutError.value?.message || "Ocurrió un error al cerrar sesión"
             };
         }
 
@@ -194,7 +185,8 @@ export const userStore = defineStore('user', () => {
             }
         };
 
-        await executeRefresh('/api/v1/auth/refresh', refreshOptions);
+        // 👈 Usamos getFullUrl también aquí
+        await executeRefresh(getFullUrl('/api/v1/auth/refresh'), refreshOptions);
 
         if (refreshError.value) {
             console.warn("No se pudo renovar la sesión. Expulsando...");
@@ -228,7 +220,7 @@ export const userStore = defineStore('user', () => {
         error: readonly(loginError),
         loading: readonly(loginLoading),
         uploadLoading: readonly(uploadLoading),
-        logoutLoading:readonly(loadingLogout),
+        logoutLoading: readonly(logoutLoading), // Mapeado correctamente con el alias
         isLogged: readonly(isLogged),
         login,
         fetchCsrf,
