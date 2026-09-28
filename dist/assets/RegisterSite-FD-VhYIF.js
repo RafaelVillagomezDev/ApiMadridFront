@@ -1,0 +1,1 @@
+import{m as t,o as r,a as n,b as o}from"./index-Ci5WeY_C.js";const s={};function a(c,e){return r(),n("div",null,[...e[0]||(e[0]=[o("h1",null,"INFO PARA REGISTRO DE SITIOS",-1)])])}const f=t(s,[["render",a]]);export{f as default};
