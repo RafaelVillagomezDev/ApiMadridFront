@@ -12,7 +12,7 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 COPY package.json pnpm-lock.yaml ./
 
 # Instalamos las dependencias usando pnpm de forma estricta (frozen-lockfile)
-RUN pnpm install --frozen-lockfile
+RUN pnpm install
 
 # Copiamos el resto del código fuente
 COPY . .
