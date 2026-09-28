@@ -3,23 +3,24 @@ import { onMounted } from "vue";
 import { useFetch } from "@/core/composables/useFetch";
 import { userStore } from "@/stores/user";
 import CardCarrousell from "@/core/components/base/CardCarrousell.vue";
+
+// ⚠️ IMPORTANTE: Ajusta esta ruta a donde hayas guardado tu RestaurantService
+import { RestaurantService } from "@core/services/api-restaurant.service"; 
+
 const store = userStore();
 
-// Añadimos el token CSRF a las cabeceras
-const { data, error, loading, execute } = useFetch(
-  "http://localhost:3000/api/v1/restaurant/",
-  {
-    method: "GET",
-    headers: {
-      // store.token and store.csrfToken can be string | null — coalesce to empty string to satisfy TS
-      Authorization: `Bearer ${store.token ?? ""}`,
-      "x-csrf-token": store.csrfToken ?? "", // 🔥 Enviamos el token CSRF para pasar el middleware
-    },
-  }
+
+const { url, options } = RestaurantService.getRestaurant(
+  store.token,
+  {}, 
+  store.csrfToken
 );
 
+
+const { data, error, loading, execute } = useFetch(url, options);
+
 onMounted(async () => {
-  console.log("Llamando a http://localhost:3000/api/v1/restaurant/");
+  console.log(`Llamando a ${url}`);
   await execute();
 });
 </script>
