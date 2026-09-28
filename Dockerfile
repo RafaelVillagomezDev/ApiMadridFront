@@ -5,14 +5,11 @@ FROM node:20-alpine AS build-stage
 
 WORKDIR /app
 
-# Habilitamos pnpm de forma nativa con corepack
-RUN corepack enable && corepack prepare pnpm@latest --activate
+# Copiamos los archivos de configuración y dependencias (package.json y package-lock.json)
+COPY package.json package-lock.json ./
 
-# Copiamos los archivos de configuración y dependencias (incluyendo pnpm-lock.yaml)
-COPY package.json pnpm-lock.yaml ./
-
-# Instalamos las dependencias usando pnpm de forma estricta (frozen-lockfile)
-RUN pnpm install
+# Instalamos las dependencias con npm de manera limpia
+RUN npm ci
 
 # Copiamos el resto del código fuente
 COPY . .
@@ -22,7 +19,7 @@ ARG VITE_API_URL=https://api.yandrydev.cloud
 ENV VITE_API_URL=$VITE_API_URL
 
 # Compilamos la aplicación para producción (genera la carpeta dist)
-RUN pnpm run build
+RUN npm run build
 
 
 # ==========================================
