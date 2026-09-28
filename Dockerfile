@@ -5,7 +5,7 @@ FROM node:20-alpine AS build-stage
 
 WORKDIR /app
 
-# Copiamos los archivos de configuración y dependencias (package.json y package-lock.json)
+# Copiamos los archivos de configuración y dependencias
 COPY package.json package-lock.json ./
 
 # Instalamos las dependencias con npm de manera limpia
@@ -14,7 +14,7 @@ RUN npm ci
 # Copiamos el resto del código fuente
 COPY . .
 
-# Recibimos la variable de entorno desde Dokploy (o usa la de producción por defecto)
+# Recibimos la variable de entorno desde Dokploy
 ARG VITE_API_URL=https://api.yandrydev.cloud
 ENV VITE_API_URL=$VITE_API_URL
 
