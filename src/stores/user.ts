@@ -16,6 +16,15 @@ export const userStore = defineStore('user', () => {
         sessionStorage.setItem('csrf_token', newToken);
     };
 
+    // INSTANCIA PARA EL REGISTER
+    const {
+        data: registerData,
+        loading: registerLoading,
+        headers: registerHeaders,
+        error: registerError,
+        execute: executeRegister
+    } = useFetch();
+
     // INSTANCIA PARA EL LOGIN 
     const {
         data: loginData,
@@ -57,6 +66,39 @@ export const userStore = defineStore('user', () => {
     } = useFetch();
 
     const dataMemory = computed(() => loginData.value);
+
+    const registerUser = async (userData: { name: string ,surname: string,email: string; password: string;}) => {
+        const csrfSuccess = await fetchCsrf();
+
+        if (!csrfSuccess) {
+            return { success: false, message: csrfError.value?.message || "Error de seguridad CSRF." };
+        }
+
+        const registerConfig = UserService.userRegisterConfig(
+            userData,
+            null,
+            csrfToken.value
+        );
+
+        await executeRegister(registerConfig.url, registerConfig.options);
+
+        if (registerError.value) {
+            return {
+                success: false,
+                message: registerError.value?.message || "Ocurrió un error al registrar el usuario."
+            };
+        }
+
+        const rotatedCsrf = registerHeaders.value?.get('x-new-csrf-token') || registerHeaders.value?.get('x-csrf-token');
+        if (rotatedCsrf) {
+            setCsrf(rotatedCsrf);
+        }
+
+        return {
+            success: true,
+            message: registerData.value?.message || "Registro correcto"
+        };
+    }
 
     const uploadImage = async (restaurantId: string, formData: FormData) => {
         if (!token.value || !csrfToken.value) {
@@ -209,7 +251,7 @@ export const userStore = defineStore('user', () => {
             setCsrf(rotatedCsrf);
         }
 
-        console.log("¡Sesión renovada con éxito!");
+   
         return true;
     };
 
@@ -219,6 +261,7 @@ export const userStore = defineStore('user', () => {
         csrfToken: readonly(csrfToken),
         error: readonly(loginError),
         loading: readonly(loginLoading),
+        loadingRegister: readonly(registerLoading),
         uploadLoading: readonly(uploadLoading),
         logoutLoading: readonly(logoutLoading), // Mapeado correctamente con el alias
         isLogged: readonly(isLogged),
@@ -227,6 +270,7 @@ export const userStore = defineStore('user', () => {
         refreshSession,
         logoutUser,
         setCsrf,
-        uploadImage
+        uploadImage,
+        registerUser
     };
 });

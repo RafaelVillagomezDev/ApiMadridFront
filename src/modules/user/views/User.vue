@@ -20,7 +20,6 @@ const { url, options } = RestaurantService.getRestaurant(
 const { data, error, loading, execute } = useFetch(url, options);
 
 onMounted(async () => {
-  console.log(`Llamando a ${url}`);
   await execute();
 });
 </script>

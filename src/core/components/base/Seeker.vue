@@ -20,7 +20,6 @@ const handleInput = () => {
   if (isInvalid.value) return;
 
   if (!filters.value.name.trim()) {
-    console.log("Input vacío, no se busca.");
     return;
   }
 

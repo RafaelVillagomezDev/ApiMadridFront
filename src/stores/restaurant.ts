@@ -141,7 +141,7 @@ export const useRestaurantStore = defineStore('restaurant', () => {
 
   async function setCriteriaFilters(criteria: OptionTabProps): Promise<void> {
     activeTabsCriteria.value = criteria;
-    console.log('📦 criteria en store:', JSON.stringify(criteria, null, 2));
+    
 
     const queryParams: Record<string, any> = {};
 

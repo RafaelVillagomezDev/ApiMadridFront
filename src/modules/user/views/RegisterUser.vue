@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import { userStore } from "@/stores/user";
+import { useRouter } from 'vue-router';
 
-
+const router = useRouter();
 const isPasswordVisible = ref(false);
+const store = userStore();
 
+const errorMessage = ref<string | null>(null);
 
 const showPassword = () => {
     isPasswordVisible.value = true;
@@ -13,13 +17,20 @@ const hidePassword = () => {
     isPasswordVisible.value = false;
 };
 
-const handleRegister = (event: Event) => {
+const handleRegister = async (event: Event) => {
   event.preventDefault();
   const formData = new FormData(event.target as HTMLFormElement);
   
   const data = Object.fromEntries(formData);
-  
-  console.log(data);
+    
+  const register = await store.registerUser(data as { name: string; surname: string; email: string; password: string });
+
+    if (register.success) {
+        router.push({ name: 'user-view' });
+    } else {
+        errorMessage.value = register.message;
+    }
+
 };
 
 
@@ -137,6 +148,16 @@ const handleRegister = (event: Event) => {
                             <label for="terms" class="text-gray-400 text-sm cursor-pointer select-none">
                                 Acepto los <a href="#" class="text-white hover:underline">Terminos y condiciones</a>
                             </label>
+                        </div>
+
+                        <div v-if="errorMessage"
+                            class="flex items-center gap-2 p-3 text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg transition-all">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>{{ errorMessage }}</span>
                         </div>
 
                         <!-- Botón de Registro -->
