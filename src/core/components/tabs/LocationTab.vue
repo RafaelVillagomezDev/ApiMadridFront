@@ -4,10 +4,11 @@ import type { Restaurant } from '@/types/restaurant-type';
 import { Building2, Earth, MapPin } from 'lucide-vue-next';
 import L from 'leaflet';
 
-// Definimos las props de forma estricta asegurando el tipado
-const props = defineProps<{
+interface Props {
   restaurant: Restaurant;
-}>();
+}
+
+const props = defineProps<Props>();
 
 const mapContainer = ref<HTMLDivElement | null>(null);
 let map: L.Map | null = null;
@@ -94,13 +95,13 @@ watch(() => props.restaurant, () => {
 
       <div ref="mapContainer"
         class="relative w-full h-[350px] rounded-[20px] border-4 border-white shadow-xl overflow-hidden z-0">
-        <div class="absolute inset-0 bg-gray-100 flex items-center justify-center">
+        <div  class="absolute inset-0 bg-gray-100 flex items-center justify-center">
           <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
         </div>
       </div>
 
-      <a v-if="restaurant.location.latitude !== undefined && restaurant.location.longitude !== undefined"
-        :href="`https://www.google.com/maps/search/?api=1&query=${restaurant.location.latitude},${restaurant.location.longitude}`"
+      <a v-if="restaurant.location.latitude != null && restaurant.location.longitude != null"
+        :href="'https://www.google.com/maps/search/?api=1&query=' + restaurant.location.latitude + ',' + restaurant.location.longitude"
         target="_blank"
         class="absolute bottom-4 right-4 z-[1000] bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg border border-gray-100 text-xs font-bold text-gray-700 hover:bg-emerald-600 hover:text-white transition-all flex items-center gap-2">
         <MapPin :size="14" />
