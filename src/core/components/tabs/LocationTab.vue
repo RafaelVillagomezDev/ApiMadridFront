@@ -4,21 +4,24 @@ import type { Restaurant } from '@/types/restaurant-type';
 import { Building2, Earth, MapPin } from 'lucide-vue-next';
 import L from 'leaflet';
 
-
 interface Props {
-  restaurant: Restaurant | undefined;
+  restaurant?: Restaurant;
 }
 
 const props = defineProps<Props>();
 
-// Referencia al elemento del DOM
+// Referencia segura al elemento del DOM
 const mapContainer = ref<HTMLElement | null>(null);
 let map: L.Map | null = null;
 
 const initMap = () => {
-  if (!props.restaurant?.location || !mapContainer.value) return;
+  // Asegurarnos de que location y sus coordenadas existan antes de usarlas
+  const location = props.restaurant?.location;
+  if (!location || typeof location.latitude !== 'number' || typeof location.longitude !== 'number' || !mapContainer.value) {
+    return;
+  }
 
-  const { latitude, longitude } = props.restaurant.location;
+  const { latitude, longitude } = location;
 
   // 1. Inicializar el mapa
   map = L.map(mapContainer.value).setView([latitude, longitude], 15);
@@ -30,7 +33,7 @@ const initMap = () => {
 
   // 3. Añadir el marcador
   L.marker([latitude, longitude]).addTo(map)
-    .bindPopup(props.restaurant.name || 'Restaurante')
+    .bindPopup(props.restaurant?.name || 'Restaurante')
     .openPopup();
 };
 
@@ -42,8 +45,9 @@ onMounted(() => {
 watch(() => props.restaurant, () => {
   if (map) {
     map.remove(); // Limpiar el mapa anterior
-    initMap();
+    map = null;
   }
+  initMap();
 }, { deep: true });
 </script>
 
@@ -62,7 +66,8 @@ watch(() => props.restaurant, () => {
           </span>
         </div>
       </div>
-       <div v-if="restaurant.location.county" class="flex items-start gap-x-3 p-2">
+
+      <div v-if="restaurant.location.county" class="flex items-start gap-x-3 p-2">
         <div class="bg-white p-2 rounded-lg shadow-sm border border-gray-100">
           <Building2 class="text-emerald-600" :size="20" />
         </div>
@@ -94,12 +99,13 @@ watch(() => props.restaurant, () => {
 
       <div ref="mapContainer"
         class="relative w-full h-[350px] rounded-[20px] border-4 border-white shadow-xl overflow-hidden z-0">
-        <div v-if="!map" class="absolute inset-0 bg-gray-100 flex items-center justify-center">
+        <div  class="absolute inset-0 bg-gray-100 flex items-center justify-center">
           <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
         </div>
       </div>
 
-      <a :href="`https://www.google.com/maps/search/?api=1&query=${restaurant.location.latitude},${restaurant.location.longitude}`"
+      <a v-if="restaurant.location.latitude && restaurant.location.longitude"
+        :href="`https://www.google.com/maps/search/?api=1&query=${restaurant.location.latitude},${restaurant.location.longitude}`"
         target="_blank"
         class="absolute bottom-4 right-4 z-[1000] bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg border border-gray-100 text-xs font-bold text-gray-700 hover:bg-emerald-600 hover:text-white transition-all flex items-center gap-2">
         <MapPin :size="14" />
