@@ -20,7 +20,7 @@ const initMap = async (): Promise<void> => {
   await nextTick();
 
   const loc = props.restaurant?.location;
-  const container: HTMLDivElement | null = mapContainer.value;
+ const container = mapContainer.value;
 
   if (
     !loc ||
