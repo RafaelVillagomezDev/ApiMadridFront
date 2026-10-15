@@ -12,17 +12,21 @@ interface Props {
 const props = defineProps<Props>();
 
 
-const activeTab = ref('home');
+
+type TabKey = keyof typeof tabs;
 
 const tabs = {
   Descripción: DescriptionTab,
   Localización: LocationTab
-}
+} as const;
+
+
+const activeTab = ref<TabKey>('Descripción');
 
 const currentComponent = computed(() => {
-  return tabs[activeTab.value as keyof typeof tabs] || DescriptionTab;
+  
+  return tabs[activeTab.value] || DescriptionTab;
 });
-
 </script>
 
 <template>
