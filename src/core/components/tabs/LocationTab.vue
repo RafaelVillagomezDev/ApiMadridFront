@@ -1,5 +1,14 @@
+
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
+import {
+  ref,
+  computed,
+  onMounted,
+  onBeforeUnmount,
+  watch,
+  nextTick,
+} from 'vue';
+
 import type { Restaurant } from '@/types/restaurant-type';
 import { Building2, Earth, MapPin } from 'lucide-vue-next';
 import L from 'leaflet';
@@ -11,6 +20,9 @@ interface Props {
 
 const props = defineProps<Props>();
 
+const restaurant = computed<Restaurant>(() => props.restaurant);
+const location = computed(() => props.restaurant.location);
+
 const mapContainer = ref<HTMLDivElement | null>(null);
 
 let map: L.Map | null = null;
@@ -19,13 +31,11 @@ let marker: L.Marker | null = null;
 const initMap = async (): Promise<void> => {
   await nextTick();
 
-  const loc = props.restaurant?.location;
- const container = mapContainer.value;
+  const loc = location.value;
+  const container = mapContainer.value;
 
   if (
     !loc ||
-    typeof loc.latitude !== 'number' ||
-    typeof loc.longitude !== 'number' ||
     !Number.isFinite(loc.latitude) ||
     !Number.isFinite(loc.longitude) ||
     !container
@@ -33,7 +43,7 @@ const initMap = async (): Promise<void> => {
     return;
   }
 
-  // Evitar inicializar Leaflet más de una vez.
+  // Limpiar una instancia anterior antes de crear otra.
   if (map) {
     map.remove();
     map = null;
@@ -42,7 +52,7 @@ const initMap = async (): Promise<void> => {
 
   map = L.map(container).setView(
     [loc.latitude, loc.longitude],
-    15
+    15,
   );
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -50,12 +60,9 @@ const initMap = async (): Promise<void> => {
     maxZoom: 19,
   }).addTo(map);
 
-  marker = L.marker([
-    loc.latitude,
-    loc.longitude,
-  ])
+  marker = L.marker([loc.latitude, loc.longitude])
     .addTo(map)
-    .bindPopup(props.restaurant.name || 'Restaurante');
+    .bindPopup(restaurant.value.name || 'Restaurante');
 
   marker.openPopup();
 
@@ -72,7 +79,7 @@ watch(
   () => {
     void initMap();
   },
-  { deep: true }
+  { deep: true },
 );
 
 onBeforeUnmount(() => {
@@ -86,14 +93,14 @@ onBeforeUnmount(() => {
 
 <template>
   <div
-    v-if="restaurant && restaurant.location"
+    v-if="restaurant && location"
     class="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700"
   >
     <div
       class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-gray-50/50 p-4 rounded-2xl border border-gray-100"
     >
       <div
-        v-if="restaurant.location.address"
+        v-if="location.address"
         class="flex items-start gap-x-3 p-2"
       >
         <div class="bg-white p-2 rounded-lg shadow-sm border border-gray-100">
@@ -105,13 +112,13 @@ onBeforeUnmount(() => {
             Dirección
           </span>
           <span class="text-gray-700 font-medium text-sm md:text-base leading-tight">
-            {{ restaurant.location.address }}
+            {{ location.address }}
           </span>
         </div>
       </div>
 
       <div
-        v-if="restaurant.location.county"
+        v-if="location.county"
         class="flex items-start gap-x-3 p-2"
       >
         <div class="bg-white p-2 rounded-lg shadow-sm border border-gray-100">
@@ -123,13 +130,13 @@ onBeforeUnmount(() => {
             Ciudad
           </span>
           <span class="text-gray-700 font-medium text-sm md:text-base leading-tight">
-            {{ restaurant.location.county }}
+            {{ location.county }}
           </span>
         </div>
       </div>
 
       <div
-        v-if="restaurant.location.country"
+        v-if="location.country"
         class="flex items-start gap-1 p-2"
       >
         <div class="bg-white p-2 rounded-lg shadow-sm border border-gray-100">
@@ -141,7 +148,7 @@ onBeforeUnmount(() => {
             País / Región
           </span>
           <span class="text-gray-700 font-medium text-sm md:text-base leading-tight">
-            {{ restaurant.location.country }}
+            {{ location.country }}
           </span>
         </div>
       </div>
@@ -167,10 +174,10 @@ onBeforeUnmount(() => {
 
       <a
         v-if="
-          restaurant.location.latitude != null &&
-          restaurant.location.longitude != null
+          Number.isFinite(location.latitude) &&
+          Number.isFinite(location.longitude)
         "
-        :href="`https://www.google.com/maps/search/?api=1&query=${restaurant.location.latitude},${restaurant.location.longitude}`"
+        :href="`https://www.google.com/maps/search/?api=1&query=${location.latitude},${location.longitude}`"
         target="_blank"
         rel="noopener noreferrer"
         class="absolute bottom-4 right-4 z-[1000] bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg border border-gray-100 text-xs font-bold text-gray-700 hover:bg-emerald-600 hover:text-white transition-all flex items-center gap-2"
@@ -181,7 +188,7 @@ onBeforeUnmount(() => {
     </div>
 
     <div
-      v-if="restaurant.location.address"
+      v-if="location.address"
       class="flex items-center justify-center gap-2 text-gray-400 text-xs italic"
     >
       <Building2 :size="14" />
