@@ -20,7 +20,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const restaurant = computed<Restaurant>(() => props.restaurant);
+
 const location = computed(() => props.restaurant.location);
 
 const mapContainer = ref<HTMLDivElement | null>(null);
@@ -62,7 +62,7 @@ const initMap = async (): Promise<void> => {
 
   marker = L.marker([loc.latitude, loc.longitude])
     .addTo(map)
-    .bindPopup(restaurant.value.name || 'Restaurante');
+   .bindPopup(props.restaurant.name || 'Restaurante');
 
   marker.openPopup();
 
