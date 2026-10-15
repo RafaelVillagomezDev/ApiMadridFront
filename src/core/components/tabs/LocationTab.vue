@@ -1,30 +1,27 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, nextTick } from 'vue';
 import type { Restaurant } from '@/types/restaurant-type';
 import { Building2, Earth, MapPin } from 'lucide-vue-next';
 import L from 'leaflet';
 
 interface Props {
-  restaurant?: Restaurant;
+  restaurant: Restaurant; // Ya no es opcional, porque tu interfaz exige que exista
 }
 
 const props = defineProps<Props>();
 
 // Referencia segura al elemento del DOM
-const mapContainer = ref<HTMLElement | null>(null);
+const mapContainer = ref<HTMLDivElement | null>(null);
 let map: L.Map | null = null;
 
 const initMap = () => {
-  // Asegurarnos de que location y sus coordenadas existan antes de usarlas
-  const location = props.restaurant?.location;
-  if (!location || typeof location.latitude !== 'number' || typeof location.longitude !== 'number' || !mapContainer.value) {
+  const loc = props.restaurant.location;
+  if (!loc || typeof loc.latitude !== 'number' || typeof loc.longitude !== 'number' || !mapContainer.value) {
     return;
   }
 
-  const { latitude, longitude } = location;
-
   // 1. Inicializar el mapa
-  map = L.map(mapContainer.value).setView([latitude, longitude], 15);
+  map = L.map(mapContainer.value).setView([loc.latitude, loc.longitude], 15);
 
   // 2. Añadir la capa de OpenStreetMap
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -32,27 +29,31 @@ const initMap = () => {
   }).addTo(map);
 
   // 3. Añadir el marcador
-  L.marker([latitude, longitude]).addTo(map)
-    .bindPopup(props.restaurant?.name || 'Restaurante')
+  L.marker([loc.latitude, loc.longitude]).addTo(map)
+    .bindPopup(props.restaurant.name || 'Restaurante')
     .openPopup();
 };
 
 onMounted(() => {
-  initMap();
+  nextTick(() => {
+    initMap();
+  });
 });
 
 // Por si el restaurante cambia sin recargar la página
 watch(() => props.restaurant, () => {
   if (map) {
-    map.remove(); // Limpiar el mapa anterior
+    map.remove();
     map = null;
   }
-  initMap();
+  nextTick(() => {
+    initMap();
+  });
 }, { deep: true });
 </script>
 
 <template>
-  <div v-if="restaurant?.location" class="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+  <div v-if="restaurant.location" class="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-gray-50/50 p-4 rounded-2xl border border-gray-100">
       <div v-if="restaurant.location.address" class="flex items-start gap-x-3 p-2">
@@ -79,7 +80,7 @@ watch(() => props.restaurant, () => {
         </div>
       </div>
 
-      <div v-if="restaurant.location.country" class="flex items-start gap-x-3 p-2">
+      <div v-if="restaurant.location.country" class="flex items-start gap-1 p-2">
         <div class="bg-white p-2 rounded-lg shadow-sm border border-gray-100">
           <Earth class="text-emerald-600" :size="20" />
         </div>
@@ -104,8 +105,7 @@ watch(() => props.restaurant, () => {
         </div>
       </div>
 
-      <a v-if="restaurant.location.latitude && restaurant.location.longitude"
-        :href="`https://www.google.com/maps/search/?api=1&query=${restaurant.location.latitude},${restaurant.location.longitude}`"
+      <a :href="`https://www.google.com/maps/search/?api=1&query=${restaurant.location.latitude},${restaurant.location.longitude}`"
         target="_blank"
         class="absolute bottom-4 right-4 z-[1000] bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg border border-gray-100 text-xs font-bold text-gray-700 hover:bg-emerald-600 hover:text-white transition-all flex items-center gap-2">
         <MapPin :size="14" />
@@ -121,12 +121,10 @@ watch(() => props.restaurant, () => {
 </template>
 
 <style scoped>
-/* Leaflet necesita una altura explícita para mostrarse */
-#mapContainer {
-  height: 300px;
+.relative {
+  z-index: 0;
 }
 
-/* Evitar problemas de z-index con menús de navegación */
 :deep(.leaflet-control-container) {
   z-index: 10;
 }
