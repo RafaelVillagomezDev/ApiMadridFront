@@ -1,15 +1,21 @@
 # ==========================================
 # 🏗️ ETAPA 1: Construcción (Build)
 # ==========================================
-FROM node:20-alpine AS build-stage
+FROM node:22-alpine AS build-stage
 
 WORKDIR /app
 
-# Copiamos únicamente el package.json
-COPY package.json ./
+# Instalamos la misma versión de pnpm que se usa en local
+RUN npm install -g pnpm@12.4.1
 
-# Instalamos las dependencias ignorando conflictos estrictos de peer dependencies
-RUN npm install --legacy-peer-deps
+# Copiamos el manifiesto, el lockfile y la config de pnpm (allowBuilds)
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+
+# El script "prepare" ejecuta "cypress install": evitamos descargar el binario en producción
+ENV CYPRESS_INSTALL_BINARY=0
+
+# Instalamos exactamente las versiones del lockfile (falla si no está sincronizado con package.json)
+RUN pnpm install --frozen-lockfile
 
 # Copiamos el resto del código fuente (el .dockerignore protegerá la carpeta node_modules)
 COPY . .
@@ -19,7 +25,7 @@ ARG VITE_API_URL=https://api.yandrydev.cloud
 ENV VITE_API_URL=$VITE_API_URL
 
 # Compilamos la aplicación para producción (genera la carpeta dist)
-RUN npm run build
+RUN pnpm build
 
 
 # ==========================================
